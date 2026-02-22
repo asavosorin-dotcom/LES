@@ -1,0 +1,137 @@
+Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 1
+int3.asm
+
+
+
+      1				     .286
+      2	0000			     .model tiny
+      3	0000			     .code
+      4				     org 100h
+      5
+      6	0100			     Start:
+      7						     ; int 09h ;experiment
+      8
+      9	0100  B8 3509				     mov ax, 3509h
+     10	0103  CD 21				     int 21h
+     11
+     12	0105  89 1E 0159r			     mov old09Ofs, bx
+     13	0109  8C C3				     mov bx, es
+     14	010B  8C 06 015Br			     mov old09seg, es
+     15
+     16	010F  06 53				     push es bx
+     17
+     18	0111  6A 00				     push 0
+     19	0113  07				     pop es
+     20
+     21	0114  BB 0024				     mov bx, 4 * 09h
+     22	0117  FA				     cli ; don't forget	important
+     23
+     24	0118  26: C7 07	0134r			     mov es:[bx], offset New09 ;change name
+     25						     ; <---------------------------------------------------??????????\
+     26
+     27	011D  8C C8				     mov ax, cs
+     28	011F  26: 89 47	02			     mov es:[bx+2], ax
+     29	0123  5B 07				     pop bx es
+     30	0125  FB				     sti ; it's	too important
+     31
+     32	0126  CD 09				     int 09h;experimentSz
+     33				     ; ===================================================
+     34
+     35						     ; mov old09Ofs, bx
+     36						     ; mov bx, es
+     37						     ; mov old09seg, es
+     38
+     39						     ; db 0eah
+     40						     ; old09Ofs	dw 0
+     41						     ; old09seg	dw 0
+     42				     ; ===================================================
+     43
+     44	0128  B8 3100				     mov ax, 3100h
+     45	012B  BA 015Er				     mov dx, offset EOP
+     46	012E  C1 EA 04				     shr dx, 4
+     47	0131  42				     inc dx
+     48	0132  CD 21				     int 21h
+     49
+     50
+     51	0134			     New09   proc
+     52
+     53	0134					     end_jmp:
+     54	0134  90				     nop
+     55	0135  90				     nop
+     56
+     57	0136  50 53 06				     push ax bx	es
+Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 2
+int3.asm
+
+
+
+     58
+     59	0139  68 B800				     push 0b800h
+     60	013C  07				     pop es
+     61	013D  BB 0370				     mov bx, (80d*5 + 40d) * 2
+     62	0140  B4 4E				     mov ah, 4eh
+     63
+     64	0142  E4 60				     in	al, 60h
+     65	0144  26: 89 07				     mov es:[bx], ax
+     66
+     67				     ; ===================================================
+     68	0147  E4 61				     in	al, 61h
+     69	0149  0C 80				     or	al, 80h
+     70	014B  E6 61				     out 61h, al
+     71	014D  24 7F				     and al, not 80h
+     72	014F  E6 61				     out 61h, al
+     73
+     74	0151  B0 20				     mov al, 20h
+     75	0153  E6 20				     out 20h, al
+     76				     ; ===================================================
+     77	0155  07 5B 58				     pop es bx ax
+     78
+     79						     ; ; push bx
+     80	0158  EA				     db	0eah
+     81						     ; jmp
+     82	0159  0000				     old09Ofs dw 0
+     83	015B  0000				     old09seg dw 0
+     84
+     85	015D  CF				     iret
+     86
+     87	015E					     endp
+     88
+     89	015E			     EOP:
+     90				     end	     Start
+Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/22/26"
+??FILENAME			  Text	 "int3	  "
+??TIME				  Text	 "16:53:30"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0707H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 INT3
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+END_JMP				  Near	 DGROUP:0134
+EOP				  Near	 DGROUP:015E
+NEW09				  Near	 DGROUP:0134
+OLD09OFS			  Word	 DGROUP:0159
+OLD09SEG			  Word	 DGROUP:015B
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  015E Word	  Public  CODE
+

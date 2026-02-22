@@ -1,0 +1,93 @@
+Turbo Assembler	 Version 4.1	    02/20/26 13:28:06	    Page 1
+int2.asm
+
+
+
+      1				     .286
+      2	0000			     .model tiny
+      3	0000			     .code
+      4				     org 100h
+      5
+      6	0100			     Start:
+      7	0100  CD 09				     int 09h ;experiment
+      8	0102  6A 00				     push 0
+      9	0104  07				     pop es
+     10
+     11	0105  BB 0024				     mov bx, 4 * 09h
+     12	0108  FA				     cli ; don't forget	important
+     13	0109  26: C7 07	0123r			     mov es:[bx], offset New09 ;change name
+     14						     ; <---------------------------------------------------??????????
+     15	010E  8C C8				     mov ax, cs
+     16	0110  26: 89 47	02			     mov es:[bx+2], ax
+     17	0114  FB				     sti ; it's	too important
+     18
+     19	0115  CD 09				     int 09h ;experiment
+     20
+     21	0117  B8 3100				     mov ax, 3100h
+     22	011A  BA 0146r				     mov dx, offset EOP
+     23	011D  C1 EA 04				     shr dx, 4
+     24	0120  42				     inc dx
+     25	0121  CD 21				     int 21h
+     26
+     27	0123			     New09   proc
+     28	0123  50 53 06				     push ax bx	es
+     29
+     30	0126  68 B800				     push 0b800h
+     31	0129  07				     pop es
+     32	012A  BB 0370				     mov bx, (80d*5 + 40d) * 2
+     33	012D  B4 4E				     mov ah, 4eh
+     34
+     35	012F  E4 60				     in	al, 60h
+     36	0131  26: 89 07				     mov es:[bx], ax
+     37
+     38				     ; ===================================================
+     39	0134  E4 61				     in	al, 61h
+     40	0136  0C 80				     or	al, 80h
+     41	0138  E6 61				     out 61h, al
+     42	013A  24 7F				     and al, not 80h
+     43	013C  E6 61				     out 61h, al
+     44
+     45	013E  B0 20				     mov al, 20h ; так совпало
+     46	0140  E6 20				     out 20h, al
+     47				     ; ===================================================
+     48
+     49	0142  07 5B 58				     pop es bx ax
+     50	0145  CF				     iret
+     51	0146					     endp
+     52
+     53	0146			     EOP:
+     54				     end	     Start
+Turbo Assembler	 Version 4.1	    02/20/26 13:28:06	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/20/26"
+??FILENAME			  Text	 "int2	  "
+??TIME				  Text	 "13:28:06"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0707H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 INT2
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+EOP				  Near	 DGROUP:0146
+NEW09				  Near	 DGROUP:0123
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  0146 Word	  Public  CODE
+
