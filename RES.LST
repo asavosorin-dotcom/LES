@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 1
+Turbo Assembler	 Version 4.1	    02/27/26 18:48:36	    Page 1
 res.asm
 
 
@@ -7,7 +7,7 @@ res.asm
       2	0000			     .code
       3
       4				     locals @@
-      5				     ; создать буфер для	вывода
+      5				     ; подумать	над названием буфера
       6				     ; заносить	туда строку с rx = val
       7				     ; потом печатать этот буфер
       8				     ; пушить в стек	все регистры, чтобы их не потерять
@@ -15,111 +15,157 @@ res.asm
      10				     org 100h
      11
      12	0100			     Start:
-     13	0100  B8 B800			 mov ax, 0B800h
-     14	0103  8E C0			 mov es, ax
-     15
-     16	0105  BF 0370			 mov di, (160 *	5 + 80)
-     17
-     18	0108  B4 0B			 mov ah, 0Bh
-     19	010A  B3 A2			 mov bl, 0A2h
-     20
-     21	010C  E8 0FD7			 call print_byte
-     22
-     23	010F  B8 4C00			 mov ax, 4c00h
-     24	0112  CD 21			 int 21h
-     25
-     26				     ;============================================================
-     27				     ; Start: bx - смещение в буфере
-     28				     ;
-     29				     ;============================================================
-     30
-     31	0114  07D0*(0000)	     Buffer dw 2000 dup(0)
-     32
-     33				     ;===============================================================================================
-     34				     ==
-     35				     ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx,   +
-     36				     dx, si, di, bp, ds, es, ss, cs, ip)
-     37				     ;	      dx - номер регистра в стеке, di - место в буфере
-     38				     ; Destr: bx, dx, al, di, es
-     39				     ;===============================================================================================
-     40				     ==
-     41	10B4			     get_asci_code_reg proc
+     13	0100  B8 FFA2			 mov ax, 0FFA2h
+     14
+     15	0103  54			 push sp
+     16	0104  50			 push ax
+     17	0105  53			 push bx
+     18	0106  51			 push cx
+     19	0107  56			 push si
+     20	0108  57			 push di
+     21	0109  55			 push bp
+     22	010A  1E			 push ds
+     23	010B  06			 push es
+     24	010C  16			 push ss
+     25	010D  0E			 push cs
+     26
+     27	010E  B8 B800			 mov ax, 0b800h
+     28	0111  8E C0			 mov es, ax
+     29
+     30	0113  BF 0550			 mov di, (160 *	8 + 80)
+     31
+     32	0116  B4 0B			 mov ah, 0Bh
+     33	0118  B3 A2			 mov bl, 0A2h
+     34
+     35	011A  B9 0005			 mov cx, 5
+     36	011D  BE 10DFr			 lea si, Ax_equ_str
+     37
+     38	0120				 @@p:
+     39	0120  AC			     lodsb
+     40	0121  AB			     stosw
+     41	0122  E2 FC			     loop @@p
      42
-     43	10B4  55			 push bp
-     44	10B5  8B EC			 mov bp, sp
-     45	10B7  83 C5 04			 add bp, 4
-     46
-     47	10BA  33 DB			 xor bx, bx
-     48	10BC  8C C8			 mov ax, cs
-     49	10BE  8E C0			 mov es, ax
-     50
-     51	10C0  D1 E2			 shl dx, 1
-     52	10C2  03 EA			 add bp, dx ; bp -> value of register
+     43	0124  BA 0002			 mov dx, 2
+     44	0127  E8 0FBF			 call get_asci_code_reg
+     45
+     46	012A  B9 0005			 mov cx, 5
+     47	012D  BE 10E4r			 lea si, Bx_equ_str
+     48
+     49	0130				 @@pb:
+     50	0130  AC			     lodsb
+     51	0131  AB			     stosw
+     52	0132  E2 EC			     loop @@p
      53
-     54	10C4  8A 5E 00			 mov bl, [bp]
-     55	10C7  E8 001C			 call print_byte
+     54	0134  BA 0004			 mov dx, 4
+     55	0137  E8 0FAF			 call get_asci_code_reg
      56
-     57	10CA  8A 5E 01			 mov bl, [bp + 1]
-Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 2
+     57	013A  B8 4C00			 mov ax, 4c00h
+Turbo Assembler	 Version 4.1	    02/27/26 18:48:36	    Page 2
 res.asm
 
 
 
-     58	10CD  E8 0016			 call print_byte
+     58	013D  CD 21			 int 21h
      59
-     60	10D0  5D			 pop bp
-     61	10D1			     endp
-     62
-     63				     ;===============================================================================================
-     64				     ==
-     65				     ; Start: в bl шестнадцатиричная цифра, es:di - адрес для	    +
-     66				     печати числа, ah - стиль
-     67				     ; Destr: bl, dx, al, di, es
-     68				     ; Note: в	bl преобразует младшие 4 бита в ASCI код hex и	    +
-     69				     печатает в буфер
-     70				     ;===============================================================================================
-     71				     ==
-     72
-     73	10D1			     print_hex_symb proc
-     74	10D1  80 FB 09			 cmp bl, 09h
-     75	10D4  7F 06			 jg @@letter
-     76
-     77	10D6  80 C3 30			 add bl, '0'
-     78	10D9  EB 07 90			 jmp @@letter_end
+     60				     ;============================================================
+     61				     ; Start: bx - смещение в буфере
+     62				     ;
+     63				     ;============================================================
+     64
+     65	013F  07D0*(0000)	     Buffer dw 2000 dup(0)
+     66	10DF  61 78 20 3D 20	     Ax_equ_str	db 'ax = '
+     67	10E4  62 78 20 3D 20	     Bx_equ_str	db 'bx = '
+     68
+     69				     ;===============================================================================================
+     70				     ==
+     71				     ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx,   +
+     72				     dx, si, di, bp, ds, es, ss, cs)
+     73				     ;	      dx - номер регистра в стеке, di - место в буфере, es - +
+     74				     сегмент буфера
+     75				     ; Destr: bx, dx, al, di, es
+     76				     ;===============================================================================================
+     77				     ==
+     78	10E9			     get_asci_code_reg proc
      79
-     80	10DC				 @@letter:
-     81	10DC  80 C3 41			 add bl, 'A'
-     82	10DF  80 EB 0A			 sub bl, 0Ah
-     83	10E2				 @@letter_end:
-     84	10E2  8A C3			 mov al, bl
-     85	10E4  AB			 stosw
-     86
-     87	10E5  C3			 ret
-     88	10E6			     endp
-     89				     ;===============================================================================================
-     90				     ==
-     91				     ; Start: в bl - байт для печати, es:di - адрес для печати числа
-     92				     ; Destr: bl, dx, al, di, es
-     93				     ; Note: выводит bl в буфер в	виде ASCI кода
-     94				     ;===============================================================================================
-     95				     ==
-     96	10E6			     print_byte	proc
-     97	10E6  8A D3			 mov dl, bl
-     98	10E8  80 E3 F0			 and bl, 0f0h ;	старшие 4 бита
-     99	10EB  D0 EB D0 EB D0 EB	D0+	 shr bl, 4
-    100	      EB
-    101
-    102	10F3  E8 FFDB			 call print_hex_symb
+     80	10E9  57			 push di
+     81	10EA  55			 push bp
+     82	10EB  8B EC			 mov bp, sp
+     83	10ED  83 C5 1C			 add bp, 28
+     84
+     85	10F0  33 DB			 xor bx, bx
+     86					 ; mov ax, cs
+     87					 ; mov es, ax
+     88
+     89	10F2  D1 E2			 shl dx, 1
+     90	10F4  2B EA			 sub bp, dx ; bp -> value of register
+     91
+     92	10F6  8A 5E 01			 mov bl, [bp + 1]
+     93	10F9  E8 0022			 call print_byte
+     94
+     95	10FC  8A 5E 00			 mov bl, [bp]
+     96	10FF  E8 001C			 call print_byte
+     97
+     98	1102  5D			 pop bp
+     99	1103  5F			 pop di
+    100	1104  81 C7 00A0		 add di, 160
+    101	1108  C3			 ret
+    102	1109			     endp
     103
-    104	10F6  8A DA			 mov bl, dl
-    105	10F8  80 E3 0F			 and bl, 0fh ; младшие 4	бита
-    106
-    107	10FB  E8 FFD3			 call print_hex_symb
-    108	10FE  C3			 ret
-    109	10FF			     endp
-    110
-    111				     end Start
-Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 3
+    104				     ;===============================================================================================
+    105				     ==
+    106				     ; Start: в bl шестнадцатиричная цифра, es:di - адрес для	    +
+    107				     печати числа, ah - стиль
+    108				     ; Destr: bl, dx, al, di, es
+    109				     ; Note: в	bl преобразует младшие 4 бита в ASCI код hex и	    +
+    110				     печатает в буфер
+    111				     ;===============================================================================================
+    112				     ==
+    113
+    114	1109			     print_hex_symb proc
+Turbo Assembler	 Version 4.1	    02/27/26 18:48:36	    Page 3
+res.asm
+
+
+
+    115	1109  80 FB 09			 cmp bl, 09h
+    116	110C  7F 06			 jg @@letter
+    117
+    118	110E  80 C3 30			 add bl, '0'
+    119	1111  EB 07 90			 jmp @@letter_end
+    120
+    121	1114				 @@letter:
+    122	1114  80 C3 41			 add bl, 'A'
+    123	1117  80 EB 0A			 sub bl, 0Ah
+    124	111A				 @@letter_end:
+    125	111A  8A C3			 mov al, bl
+    126	111C  AB			 stosw
+    127
+    128	111D  C3			 ret
+    129	111E			     endp
+    130				     ;===============================================================================================
+    131				     ==
+    132				     ; Start: в bl - байт для печати, es:di - адрес для печати числа
+    133				     ; Destr: bl, dx, al, di, es
+    134				     ; Note: выводит bl в буфер в	виде ASCI кода
+    135				     ;===============================================================================================
+    136				     ==
+    137	111E			     print_byte	proc
+    138	111E  8A D3			 mov dl, bl
+    139	1120  80 E3 F0			 and bl, 0f0h ;	старшие 4 бита
+    140	1123  D0 EB D0 EB D0 EB	D0+	 shr bl, 4
+    141	      EB
+    142
+    143	112B  E8 FFDB			 call print_hex_symb
+    144
+    145	112E  8A DA			 mov bl, dl
+    146	1130  80 E3 0F			 and bl, 0fh ; младшие 4	бита
+    147
+    148	1133  E8 FFD3			 call print_hex_symb
+    149	1136  C3			 ret
+    150	1137			     endp
+    151
+    152				     end Start
+Turbo Assembler	 Version 4.1	    02/27/26 18:48:36	    Page 4
 Symbol Table
 
 
@@ -129,11 +175,13 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "02/27/26"
 ??FILENAME			  Text	 "res	  "
-??TIME				  Text	 "17:57:19"
+??TIME				  Text	 "18:48:36"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
-@@LETTER			  Near	 DGROUP:10DC
-@@LETTER_END			  Near	 DGROUP:10E2
+@@LETTER			  Near	 DGROUP:1114
+@@LETTER_END			  Near	 DGROUP:111A
+@@P				  Near	 DGROUP:0120
+@@PB				  Near	 DGROUP:0130
 @CODE				  Text	 DGROUP
 @CODESIZE			  Text	 0
 @CPU				  Text	 0101H
@@ -145,15 +193,17 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-BUFFER				  Word	 DGROUP:0114
-GET_ASCI_CODE_REG		  Near	 DGROUP:10B4
-PRINT_BYTE			  Near	 DGROUP:10E6
-PRINT_HEX_SYMB			  Near	 DGROUP:10D1
+AX_EQU_STR			  Byte	 DGROUP:10DF
+BUFFER				  Word	 DGROUP:013F
+BX_EQU_STR			  Byte	 DGROUP:10E4
+GET_ASCI_CODE_REG		  Near	 DGROUP:10E9
+PRINT_BYTE			  Near	 DGROUP:111E
+PRINT_HEX_SYMB			  Near	 DGROUP:1109
 START				  Near	 DGROUP:0100
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  10FF Word	  Public  CODE
+  _TEXT				  16  1137 Word	  Public  CODE
 
