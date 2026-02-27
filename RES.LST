@@ -1,0 +1,159 @@
+Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 1
+res.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3
+      4				     locals @@
+      5				     ; создать буфер для	вывода
+      6				     ; заносить	туда строку с rx = val
+      7				     ; потом печатать этот буфер
+      8				     ; пушить в стек	все регистры, чтобы их не потерять
+      9
+     10				     org 100h
+     11
+     12	0100			     Start:
+     13	0100  B8 B800			 mov ax, 0B800h
+     14	0103  8E C0			 mov es, ax
+     15
+     16	0105  BF 0370			 mov di, (160 *	5 + 80)
+     17
+     18	0108  B4 0B			 mov ah, 0Bh
+     19	010A  B3 A2			 mov bl, 0A2h
+     20
+     21	010C  E8 0FD7			 call print_byte
+     22
+     23	010F  B8 4C00			 mov ax, 4c00h
+     24	0112  CD 21			 int 21h
+     25
+     26				     ;============================================================
+     27				     ; Start: bx - смещение в буфере
+     28				     ;
+     29				     ;============================================================
+     30
+     31	0114  07D0*(0000)	     Buffer dw 2000 dup(0)
+     32
+     33				     ;===============================================================================================
+     34				     ==
+     35				     ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx,   +
+     36				     dx, si, di, bp, ds, es, ss, cs, ip)
+     37				     ;	      dx - номер регистра в стеке, di - место в буфере
+     38				     ; Destr: bx, dx, al, di, es
+     39				     ;===============================================================================================
+     40				     ==
+     41	10B4			     get_asci_code_reg proc
+     42
+     43	10B4  55			 push bp
+     44	10B5  8B EC			 mov bp, sp
+     45	10B7  83 C5 04			 add bp, 4
+     46
+     47	10BA  33 DB			 xor bx, bx
+     48	10BC  8C C8			 mov ax, cs
+     49	10BE  8E C0			 mov es, ax
+     50
+     51	10C0  D1 E2			 shl dx, 1
+     52	10C2  03 EA			 add bp, dx ; bp -> value of register
+     53
+     54	10C4  8A 5E 00			 mov bl, [bp]
+     55	10C7  E8 001C			 call print_byte
+     56
+     57	10CA  8A 5E 01			 mov bl, [bp + 1]
+Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 2
+res.asm
+
+
+
+     58	10CD  E8 0016			 call print_byte
+     59
+     60	10D0  5D			 pop bp
+     61	10D1			     endp
+     62
+     63				     ;===============================================================================================
+     64				     ==
+     65				     ; Start: в bl шестнадцатиричная цифра, es:di - адрес для	    +
+     66				     печати числа, ah - стиль
+     67				     ; Destr: bl, dx, al, di, es
+     68				     ; Note: в	bl преобразует младшие 4 бита в ASCI код hex и	    +
+     69				     печатает в буфер
+     70				     ;===============================================================================================
+     71				     ==
+     72
+     73	10D1			     print_hex_symb proc
+     74	10D1  80 FB 09			 cmp bl, 09h
+     75	10D4  7F 06			 jg @@letter
+     76
+     77	10D6  80 C3 30			 add bl, '0'
+     78	10D9  EB 07 90			 jmp @@letter_end
+     79
+     80	10DC				 @@letter:
+     81	10DC  80 C3 41			 add bl, 'A'
+     82	10DF  80 EB 0A			 sub bl, 0Ah
+     83	10E2				 @@letter_end:
+     84	10E2  8A C3			 mov al, bl
+     85	10E4  AB			 stosw
+     86
+     87	10E5  C3			 ret
+     88	10E6			     endp
+     89				     ;===============================================================================================
+     90				     ==
+     91				     ; Start: в bl - байт для печати, es:di - адрес для печати числа
+     92				     ; Destr: bl, dx, al, di, es
+     93				     ; Note: выводит bl в буфер в	виде ASCI кода
+     94				     ;===============================================================================================
+     95				     ==
+     96	10E6			     print_byte	proc
+     97	10E6  8A D3			 mov dl, bl
+     98	10E8  80 E3 F0			 and bl, 0f0h ;	старшие 4 бита
+     99	10EB  D0 EB D0 EB D0 EB	D0+	 shr bl, 4
+    100	      EB
+    101
+    102	10F3  E8 FFDB			 call print_hex_symb
+    103
+    104	10F6  8A DA			 mov bl, dl
+    105	10F8  80 E3 0F			 and bl, 0fh ; младшие 4	бита
+    106
+    107	10FB  E8 FFD3			 call print_hex_symb
+    108	10FE  C3			 ret
+    109	10FF			     endp
+    110
+    111				     end Start
+Turbo Assembler	 Version 4.1	    02/27/26 17:57:19	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/27/26"
+??FILENAME			  Text	 "res	  "
+??TIME				  Text	 "17:57:19"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@@LETTER			  Near	 DGROUP:10DC
+@@LETTER_END			  Near	 DGROUP:10E2
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 RES
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+BUFFER				  Word	 DGROUP:0114
+GET_ASCI_CODE_REG		  Near	 DGROUP:10B4
+PRINT_BYTE			  Near	 DGROUP:10E6
+PRINT_HEX_SYMB			  Near	 DGROUP:10D1
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  10FF Word	  Public  CODE
+
