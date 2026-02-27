@@ -10,8 +10,9 @@ locals @@
 org 100h
 
 Start:
-    mov ax, 0FFA2h
-    
+    mov ax, 0FBA2h
+    mov bx, 3346h
+
     push sp
     push ax 
     push bx
@@ -31,29 +32,22 @@ Start:
 
     mov ah, 0Bh
     mov bl, 0A2h
+    mov dx, 0
+    lea si, Sp_equ_str
 
+    @@cicle:
     mov cx, 5
-    lea si, Ax_equ_str
 
     @@p:
         lodsb
         stosw
         loop @@p
 
-    mov dx, 2
     call get_asci_code_reg
-
-    mov cx, 5
-    lea si, Bx_equ_str
-
-    @@pb:
-        lodsb
-        stosw
-        loop @@p
-
-    mov dx, 4
-    call get_asci_code_reg
-
+    inc dx
+    cmp dx, 12
+    jne @@cicle
+    
     mov ax, 4c00h
     int 21h
 
@@ -63,16 +57,27 @@ Start:
 ;============================================================
 
 Buffer dw 2000 dup(0)
+Sp_equ_str db 'sp = '
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
+Сx_equ_str db 'cx = '
+Dx_equ_str db 'dx = '
+Si_equ_str db 'si = '
+Di_equ_str db 'di = '
+Bp_equ_str db 'bp = '
+Ds_equ_str db 'ds = '
+Es_equ_str db 'es = '
+Ss_equ_str db 'ss = '
+Cs_equ_str db 'cs = '
 
 ;=================================================================================================
 ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx, dx, si, di, bp, ds, es, ss, cs)
 ;        dx - номер регистра в стеке, di - место в буфере, es - сегмент буфера
-; Destr: bx, dx, al, di, es
+; Destr: bx, al, di, es
 ;=================================================================================================
 get_asci_code_reg proc
-    
+    push dx 
+
     push di
     push bp
     mov bp, sp
@@ -93,7 +98,9 @@ get_asci_code_reg proc
 
     pop bp
     pop di
-    add di, 160
+    add di, 150
+
+    pop dx
     ret
 endp
 
@@ -137,5 +144,7 @@ print_byte proc
     call print_hex_symb
     ret
 endp
+
+
 
 end Start
