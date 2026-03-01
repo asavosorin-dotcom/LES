@@ -44,6 +44,7 @@ Start:
 
 My_int_9 proc
     push ax bx es
+
     push sp
     push ax 
     push bx
@@ -57,6 +58,16 @@ My_int_9 proc
     push cs 
     
     xor ax, ax ;!!!!!!!!!  
+
+; ===================================================
+    mov ax, 40h
+    mov es, ax 
+    mov al, es:[17h]
+    test al, 4h
+; ===================================================
+
+    je @@old_9
+
     in al, 60h
     cmp al, 1fh 
 
