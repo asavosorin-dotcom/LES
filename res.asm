@@ -30,7 +30,7 @@ Start:
     mov es:[bx + 2], ax
     sti
 
-        ; int 09h
+        int 09h
 
     mov ax, 3100h
 	mov dx, offset EOP
@@ -83,24 +83,41 @@ My_int_9 proc
     mov ds, ax
 
     mov ah, 0Bh
-    mov bl, 0A2h
+    ; mov bl, 0A2h
     mov dx, 0
-    lea si, Sp_equ_str
 
-    ; print_frame
+    lea si, frame
+    call print_frame_string
+    mov bx, si
+    lea si, Sp_equ_str
 
     @@cicle:
         mov cx, 5
+        mov al, [bx]
+        mov word ptr es:[di], ax
+        add di, 4
+
         ;вот тут писать символ рамки
         @@p:
             lodsb
             stosw
             loop @@p
         call get_asci_code_reg
-        ; тут тоже символ рамки, надо перенести из функции команду на смещение 
+        ; тут тоже символ рамки, надо перенести из функции команду на смещение
+
+        add di, 2
+        mov al, [bx + 2]
+        mov word ptr es:[di], ax
+
+        add di, 136
         inc dx
         cmp dx, 12
-    jne @@cicle
+        jne @@cicle
+
+    lea si, frame
+    add si, 6   
+
+    call print_frame_string
 
     @@old_9:
     add sp, 22
@@ -150,24 +167,29 @@ endp
 ; Cs_equ_str db 'cs = '
 
 ;=================================================================================================
-; Start: di - нужное значение координаты начала рамки
+; Start: di - нужное значение координаты начала рамки, si - нужный символ
 ; Destr: 
 ;=================================================================================================
-print_frame proc
-    lea si, frame
+print_frame_string proc
+    push di
+    ; lea si, frame
     mov al, [si] 
     ; mov es, cs
     
     stosw
     inc si
-    mov cx, 10
+    mov cx, 11  
     mov al, [si]
     repne stosw
 
     inc si
     mov al, [si]
+    inc si
     stosw
-
+    mov al, [si]
+    pop di
+    add di, 160d
+    ret
 endp
 
 frame db 0c9h, 0cdh, 0bbh, 0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch 
@@ -178,12 +200,13 @@ frame db 0c9h, 0cdh, 0bbh, 0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch
 ;=================================================================================================
 ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx, dx, si, di, bp, ds, es, ss, cs)
 ;        dx - номер регистра в стеке, di - место в буфере, es - сегмент буфера
-; Destr: bx, al, di, es
+; Destr: al, di, es
 ;=================================================================================================
 get_asci_code_reg proc
     push dx 
+    push bx
 
-    push di
+    ; push di
     push bp
     mov bp, sp
     add bp, 28
@@ -202,9 +225,9 @@ get_asci_code_reg proc
     call print_byte
 
     pop bp
-    pop di
-    add di, 150
+    ; pop di
 
+    pop bx
     pop dx
     ret
 endp
