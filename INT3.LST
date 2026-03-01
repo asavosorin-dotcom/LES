@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 1
+Turbo Assembler	 Version 4.1	    02/27/26 22:55:36	    Page 1
 int3.asm
 
 
@@ -14,9 +14,9 @@ int3.asm
       9	0100  B8 3509				     mov ax, 3509h
      10	0103  CD 21				     int 21h
      11
-     12	0105  89 1E 0159r			     mov old09Ofs, bx
+     12	0105  89 1E 0157r			     mov old09Ofs, bx
      13	0109  8C C3				     mov bx, es
-     14	010B  8C 06 015Br			     mov old09seg, es
+     14	010B  8C 06 0159r			     mov old09seg, es
      15
      16	010F  06 53				     push es bx
      17
@@ -47,58 +47,55 @@ int3.asm
      42				     ; ===================================================
      43
      44	0128  B8 3100				     mov ax, 3100h
-     45	012B  BA 015Er				     mov dx, offset EOP
+     45	012B  BA 015Cr				     mov dx, offset EOP
      46	012E  C1 EA 04				     shr dx, 4
      47	0131  42				     inc dx
      48	0132  CD 21				     int 21h
      49
-     50
-     51	0134			     New09   proc
-     52
-     53	0134					     end_jmp:
-     54	0134  90				     nop
-     55	0135  90				     nop
-     56
-     57	0136  50 53 06				     push ax bx	es
-Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 2
+     50				     ;1f S 1d Cntrl
+     51
+     52	0134			     New09   proc
+     53
+     54	0134  50 53 06				     push ax bx	es
+     55
+     56	0137  68 B800				     push 0b800h
+     57	013A  07				     pop es
+Turbo Assembler	 Version 4.1	    02/27/26 22:55:36	    Page 2
 int3.asm
 
 
 
-     58
-     59	0139  68 B800				     push 0b800h
-     60	013C  07				     pop es
-     61	013D  BB 0370				     mov bx, (80d*5 + 40d) * 2
-     62	0140  B4 4E				     mov ah, 4eh
+     58	013B  BB 0370				     mov bx, (80d*5 + 40d) * 2
+     59	013E  B4 4E				     mov ah, 4eh
+     60
+     61	0140  E4 60				     in	al, 60h
+     62	0142  26: 89 07				     mov es:[bx], ax
      63
-     64	0142  E4 60				     in	al, 60h
-     65	0144  26: 89 07				     mov es:[bx], ax
-     66
-     67				     ; ===================================================
-     68	0147  E4 61				     in	al, 61h
-     69	0149  0C 80				     or	al, 80h
-     70	014B  E6 61				     out 61h, al
-     71	014D  24 7F				     and al, not 80h
-     72	014F  E6 61				     out 61h, al
-     73
-     74	0151  B0 20				     mov al, 20h
-     75	0153  E6 20				     out 20h, al
-     76				     ; ===================================================
-     77	0155  07 5B 58				     pop es bx ax
-     78
-     79						     ; ; push bx
-     80	0158  EA				     db	0eah
-     81						     ; jmp
-     82	0159  0000				     old09Ofs dw 0
-     83	015B  0000				     old09seg dw 0
-     84
-     85	015D  CF				     iret
-     86
-     87	015E					     endp
-     88
-     89	015E			     EOP:
-     90				     end	     Start
-Turbo Assembler	 Version 4.1	    02/22/26 16:53:30	    Page 3
+     64				     ; ===================================================
+     65	0145  E4 61				     in	al, 61h
+     66	0147  0C 80				     or	al, 80h
+     67	0149  E6 61				     out 61h, al
+     68	014B  24 7F				     and al, not 80h
+     69	014D  E6 61				     out 61h, al
+     70
+     71	014F  B0 20				     mov al, 20h
+     72	0151  E6 20				     out 20h, al
+     73				     ; ===================================================
+     74	0153  07 5B 58				     pop es bx ax
+     75
+     76						     ; ; push bx
+     77	0156  EA				     db	0eah
+     78						     ; jmp
+     79	0157  0000				     old09Ofs dw 0
+     80	0159  0000				     old09seg dw 0
+     81
+     82	015B  CF				     iret
+     83
+     84	015C					     endp
+     85
+     86	015C			     EOP:
+     87				     end	     Start
+Turbo Assembler	 Version 4.1	    02/27/26 22:55:36	    Page 3
 Symbol Table
 
 
@@ -106,9 +103,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "02/22/26"
+??DATE				  Text	 "02/27/26"
 ??FILENAME			  Text	 "int3	  "
-??TIME				  Text	 "16:53:30"
+??TIME				  Text	 "22:55:36"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
 @CODE				  Text	 DGROUP
@@ -122,16 +119,15 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-END_JMP				  Near	 DGROUP:0134
-EOP				  Near	 DGROUP:015E
+EOP				  Near	 DGROUP:015C
 NEW09				  Near	 DGROUP:0134
-OLD09OFS			  Word	 DGROUP:0159
-OLD09SEG			  Word	 DGROUP:015B
+OLD09OFS			  Word	 DGROUP:0157
+OLD09SEG			  Word	 DGROUP:0159
 START				  Near	 DGROUP:0100
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  015E Word	  Public  CODE
+  _TEXT				  16  015C Word	  Public  CODE
 

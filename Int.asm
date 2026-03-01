@@ -3,17 +3,22 @@
 .code
 org 100h
 
-Start:	push 0b800h
-		pop es
-		mov bx, (80d*5 + 40d) * 2
-		mov ah, 4eh
+Start:
+	mov cx, 0FFffh
+	mov bx, 1000h
 
-Next:	in al, 60h
-		mov es:[bx], ax
-		cmp al, 1
-		jne Next
+	aaaa:
+	inc bx 
+	loop aaaa
+	
+	mov cx, 0FFffh
+	jmp aaaa
 
-		mov ax, 4c00h
-		int 21h
+	mov ax, 3100h
+	mov dx, offset EOP
+	shr dx, 4
+	inc dx
+	int 21h
 
+EOP:
 end		Start

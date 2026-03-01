@@ -47,6 +47,7 @@ Start:
 		inc dx
 		int 21h
 
+;1f S 1d Cntrl
 
 New09 	proc
 

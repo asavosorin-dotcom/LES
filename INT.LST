@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    02/19/26 12:43:04	    Page 1
+Turbo Assembler	 Version 4.1	    02/28/26 13:47:42	    Page 1
 int.asm
 
 
@@ -8,21 +8,25 @@ int.asm
       3	0000			     .code
       4				     org 100h
       5
-      6	0100  68 B800		     Start:	     push 0b800h
-      7	0103  07				     pop es
-      8	0104  BB 0370				     mov bx, (80d*5 + 40d) * 2
-      9	0107  B4 4E				     mov ah, 4eh
-     10
-     11	0109  E4 60		     Next:	     in	al, 60h
-     12	010B  26: 89 07				     mov es:[bx], ax
-     13	010E  3C 01				     cmp al, 1
-     14	0110  75 F7				     jne Next
+      6	0100			     Start:
+      7	0100  B9 FFFF			     mov cx, 0FFffh
+      8	0103  BB 1000			     mov bx, 1000h
+      9
+     10	0106				     aaaa:
+     11	0106  43			     inc bx
+     12	0107  E2 FD			     loop aaaa
+     13	0109  B9 FFFF			     mov cx, 0FFffh
+     14	010C  EB F8			     jmp aaaa
      15
-     16	0112  B8 4C00				     mov ax, 4c00h
-     17	0115  CD 21				     int 21h
-     18
-     19				     end	     Start
-Turbo Assembler	 Version 4.1	    02/19/26 12:43:04	    Page 2
+     16	010E  B8 3100			     mov ax, 3100h
+     17	0111  BA 011Ar			     mov dx, offset EOP
+     18	0114  C1 EA 04			     shr dx, 4
+     19	0117  42			     inc dx
+     20	0118  CD 21			     int 21h
+     21
+     22	011A			     EOP:
+     23				     end	     Start
+Turbo Assembler	 Version 4.1	    02/28/26 13:47:42	    Page 2
 Symbol Table
 
 
@@ -30,9 +34,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "02/19/26"
+??DATE				  Text	 "02/28/26"
 ??FILENAME			  Text	 "int	  "
-??TIME				  Text	 "12:43:04"
+??TIME				  Text	 "13:47:42"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
 @CODE				  Text	 DGROUP
@@ -46,12 +50,13 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-NEXT				  Near	 DGROUP:0109
+AAAA				  Near	 DGROUP:0106
+EOP				  Near	 DGROUP:011A
 START				  Near	 DGROUP:0100
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  0117 Word	  Public  CODE
+  _TEXT				  16  011A Word	  Public  CODE
 

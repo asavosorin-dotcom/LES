@@ -7,56 +7,108 @@ locals @@
 ; потом печатать этот буфер
 ; пушить в стек все регистры, чтобы их не потерять
 
+; печать рамки!!!!
+
 org 100h
 
 Start:
+    mov ax, 3509h
+	int 21h
+
+	mov old09Ofs, bx
+	mov bx, es
+	mov old09seg, es
+
+    xor ax, ax
+    mov es, ax
+
+    mov bx, 4 * 09h
+
+    cli
+    mov es:[bx], offset My_int_9
+    mov ax, cs
+    mov es:[bx + 2], ax
+    sti
+
+        ; int 09h
+
+    mov ax, 3100h
+	mov dx, offset EOP
+	shr dx, 4
+	inc dx
+    add dx, 55
+	int 21h
+
     mov ax, 0FBA2h
     mov bx, 3346h
 
+My_int_9 proc
+    push ax bx es
     push sp
     push ax 
     push bx
     push cx
     push si 
-    push di 
+    push di     
     push bp 
-    push ds 
+    push ds     
     push es 
     push ss 
     push cs 
     
+    xor ax, ax ;!!!!!!!!!  
+    in al, 60h
+    cmp al, 1fh 
+
+    pushf
+; ===================================================
+	in al, 61h
+	or al, 80h
+	out 61h, al 
+	and al, not 80h
+	out 61h, al 
+	mov al, 20h
+	out 20h, al
+; ===================================================
+    popf
+
+    jne @@old_9
+
     mov ax, 0b800h
     mov es, ax
     
-    mov di, (160 * 8 + 80)
+    mov di, (160 * 4 + 80)
+
+    mov ax, cs
+    mov ds, ax
 
     mov ah, 0Bh
     mov bl, 0A2h
     mov dx, 0
     lea si, Sp_equ_str
 
+    ; print_frame
+
     @@cicle:
-    mov cx, 5
-
-    @@p:
-        lodsb
-        stosw
-        loop @@p
-
-    call get_asci_code_reg
-    inc dx
-    cmp dx, 12
+        mov cx, 5
+        ;вот тут писать символ рамки
+        @@p:
+            lodsb
+            stosw
+            loop @@p
+        call get_asci_code_reg
+        ; тут тоже символ рамки, надо перенести из функции команду на смещение 
+        inc dx
+        cmp dx, 12
     jne @@cicle
-    
-    mov ax, 4c00h
-    int 21h
 
-;============================================================
-; Start: bx - смещение в буфере
-; 
-;============================================================
-
-Buffer dw 2000 dup(0)
+    @@old_9:
+    add sp, 22
+    pop es bx ax 
+    db 0eah
+	old09Ofs dw 0
+	old09seg dw 0
+    jmp @@r
 Sp_equ_str db 'sp = '
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
@@ -69,6 +121,59 @@ Ds_equ_str db 'ds = '
 Es_equ_str db 'es = '
 Ss_equ_str db 'ss = '
 Cs_equ_str db 'cs = '
+    @@r:
+    iret
+
+endp
+
+    ; mov ax, 4c00h
+    ; int 21h
+
+
+;============================================================
+; Start: bx - смещение в буфере
+; 
+;============================================================
+
+; Buffer dw 2000 dup(0)
+; Sp_equ_str db 'sp = '
+; Ax_equ_str db 'ax = '
+; Bx_equ_str db 'bx = '
+; Сx_equ_str db 'cx = '
+; Dx_equ_str db 'dx = '
+; Si_equ_str db 'si = '
+; Di_equ_str db 'di = '
+; Bp_equ_str db 'bp = '
+; Ds_equ_str db 'ds = '
+; Es_equ_str db 'es = '
+; Ss_equ_str db 'ss = '
+; Cs_equ_str db 'cs = '
+
+;=================================================================================================
+; Start: di - нужное значение координаты начала рамки
+; Destr: 
+;=================================================================================================
+print_frame proc
+    lea si, frame
+    mov al, [si] 
+    ; mov es, cs
+    
+    stosw
+    inc si
+    mov cx, 10
+    mov al, [si]
+    repne stosw
+
+    inc si
+    mov al, [si]
+    stosw
+
+endp
+
+frame db 0c9h, 0cdh, 0bbh, 0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch 
+; c9 cd bb
+; c7 00 c7
+; c8 cd bc
 
 ;=================================================================================================
 ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx, dx, si, di, bp, ds, es, ss, cs)
@@ -145,6 +250,5 @@ print_byte proc
     ret
 endp
 
-
-
+EOP:
 end Start
