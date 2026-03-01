@@ -125,20 +125,7 @@ My_int_9 proc
     db 0eah
 	old09Ofs dw 0
 	old09seg dw 0
-    jmp @@r
-Sp_equ_str db 'sp = '
-Ax_equ_str db 'ax = '
-Bx_equ_str db 'bx = '
-Сx_equ_str db 'cx = '
-Dx_equ_str db 'dx = '
-Si_equ_str db 'si = '
-Di_equ_str db 'di = '
-Bp_equ_str db 'bp = '
-Ds_equ_str db 'ds = '
-Es_equ_str db 'es = '
-Ss_equ_str db 'ss = '
-Cs_equ_str db 'cs = '
-    @@r:
+
     iret
 
 endp
@@ -153,18 +140,18 @@ endp
 ;============================================================
 
 ; Buffer dw 2000 dup(0)
-; Sp_equ_str db 'sp = '
-; Ax_equ_str db 'ax = '
-; Bx_equ_str db 'bx = '
-; Сx_equ_str db 'cx = '
-; Dx_equ_str db 'dx = '
-; Si_equ_str db 'si = '
-; Di_equ_str db 'di = '
-; Bp_equ_str db 'bp = '
-; Ds_equ_str db 'ds = '
-; Es_equ_str db 'es = '
-; Ss_equ_str db 'ss = '
-; Cs_equ_str db 'cs = '
+Sp_equ_str db 'sp = '   
+Ax_equ_str db 'ax = '
+Bx_equ_str db 'bx = '
+Сx_equ_str db 'cx = '
+Dx_equ_str db 'dx = '
+Si_equ_str db 'si = '
+Di_equ_str db 'di = '
+Bp_equ_str db 'bp = '
+Ds_equ_str db 'ds = '
+Es_equ_str db 'es = '
+Ss_equ_str db 'ss = '
+Cs_equ_str db 'cs = '
 
 ;=================================================================================================
 ; Start: di - нужное значение координаты начала рамки, si - нужный символ
