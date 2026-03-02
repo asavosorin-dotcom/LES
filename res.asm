@@ -142,6 +142,17 @@ My_int_9 proc
 
 endp
 
+; My_int_8 proc
+;     push ax bx es
+
+;     ;сравнить два буфера
+
+;     pop es bx ax 
+;     db 0eah
+;     old08Ofs dw 0 
+;     old08Ofs dw 0
+; endp
+
     ; mov ax, 4c00h
     ; int 21h
 
@@ -151,7 +162,7 @@ endp
 ; 
 ;============================================================
 
-save_buffer dw 2000 dup(0)
+save_buffer dw 4000 dup(0)
 draw_buffer dw 4000 dup(0)
 Sp_equ_str db 'sp = '   
 Ax_equ_str db 'ax = '
@@ -273,6 +284,9 @@ print_byte proc
     call print_hex_symb
     ret
 endp
+;=================================================================================================
+; Note: print draw_buffer
+;=================================================================================================
 
 print_draw_buffer proc
     mov ax, 0b800h
@@ -291,7 +305,20 @@ print_draw_buffer proc
         stosw
         loop @@print 
 
+    ret
 endp
+
+; copy_draw_buffer proc
+;     mov ax, cs 
+;     mov ds, ax 
+
+;     mov ax, 0B800h
+;     mov es, ax
+
+;     lea si, draw_buffer
+;     xor di, di
+
+; endp
 
 EOP:
 end Start
