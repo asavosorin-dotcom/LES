@@ -7,8 +7,6 @@ locals @@
 ; потом печатать этот буфер
 ; пушить в стек все регистры, чтобы их не потерять
 
-; печать рамки!!!!
-
 org 100h
 
 Start:
@@ -85,10 +83,11 @@ My_int_9 proc
 
     jne @@old_9
 
-    mov ax, 0b800h
+    mov ax, cs
     mov es, ax
     
-    mov di, (160 * 4 + 80)
+    lea di, draw_buffer
+    add di, (160 * 4 + 80)
 
     mov ax, cs
     mov ds, ax
@@ -130,6 +129,8 @@ My_int_9 proc
 
     call print_frame_string
 
+    call print_draw_buffer
+
     @@old_9:
     add sp, 22
     pop es bx ax 
@@ -150,7 +151,8 @@ endp
 ; 
 ;============================================================
 
-; Buffer dw 2000 dup(0)
+save_buffer dw 2000 dup(0)
+draw_buffer dw 4000 dup(0)
 Sp_equ_str db 'sp = '   
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
@@ -166,7 +168,8 @@ Cs_equ_str db 'cs = '
 
 ;=================================================================================================
 ; Start: di - нужное значение координаты начала рамки, si - нужный символ
-; Destr: 
+; Destr: di, si
+; Note: изменение di эквивалентно переносу строки
 ;=================================================================================================
 print_frame_string proc
     push di
@@ -269,6 +272,25 @@ print_byte proc
 
     call print_hex_symb
     ret
+endp
+
+print_draw_buffer proc
+    mov ax, 0b800h
+    mov es, ax 
+
+    mov ax, cs 
+    mov ds, ax 
+
+    lea si, draw_buffer
+    xor di, di
+
+    mov cx, 2000d
+    
+    @@print:
+        lodsw
+        stosw
+        loop @@print 
+
 endp
 
 EOP:
