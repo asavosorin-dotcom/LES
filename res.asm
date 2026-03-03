@@ -74,7 +74,7 @@ My_int_9 proc
     pushf
 
 
-    cmp al, 20h ; ctrl + D
+    cmp al, 21h ; ctrl + D
 
     pushf
 ; ===================================================
@@ -325,17 +325,19 @@ print_buffer proc
     ret
 endp
 
-; copy_draw_buffer proc
-;     mov ax, cs 
-;     mov ds, ax 
+copy_draw_buffer proc
+    mov ax, cs 
+    mov ds, ax 
 
-;     mov ax, 0B800h
-;     mov es, ax
+    mov ax, 0B800h
+    mov es, ax
+ 
+    lea si, draw_buffer
+    xor di, di
 
-;     lea si, draw_buffer
-;     xor di, di
 
-; endp
+
+endp
 
 ;=================================================================================================
 ; Destr: di, si, ax, cx, es

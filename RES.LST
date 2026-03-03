@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 1
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 1
 res.asm
 
 
@@ -22,7 +22,7 @@ res.asm
      17	0109  8C C3			     mov bx, es
      18	010B  8C 06 01E1r		     mov old09seg, es
      19
-     20	010F  E8 20CF			 call make_save_buffer
+     20	010F  E8 20DD			 call make_save_buffer
      21
      22	0112  33 C0			 xor ax, ax
      23	0114  8E C0			 mov es, ax
@@ -38,7 +38,7 @@ res.asm
      33	0126  CD 09			 int 09h
      34
      35	0128  B8 3100			 mov ax, 3100h
-     36	012B  BA 21FBr			     mov dx, offset EOP
+     36	012B  BA 2209r			     mov dx, offset EOP
      37	012E  D1 EA D1 EA D1 EA	D1+	     shr dx, 4
      38	      EA
      39	0136  42			     inc dx
@@ -60,7 +60,7 @@ res.asm
      55	014B  55			 push bp
      56	014C  1E			 push ds
      57	014D  06			 push es
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 2
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 2
 res.asm
 
 
@@ -85,7 +85,7 @@ res.asm
      75	0163  9C			 pushf
      76
      77
-     78	0164  3C 20			 cmp al, 20h ; ctrl + D
+     78	0164  3C 21			 cmp al, 21h ; ctrl + D
      79
      80	0166  9C			 pushf
      81				     ; ===================================================
@@ -122,7 +122,7 @@ res.asm
     112					 ; mov bl, 0A2h
     113	0196  BA 0000			 mov dx, 0
     114
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 3
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 3
 res.asm
 
 
@@ -184,7 +184,7 @@ res.asm
     169				     ;	   db 0eah
     170				     ;	   old08Ofs dw 0
     171				     ;	   old08Ofs dw 0
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 4
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 4
 res.asm
 
 
@@ -246,7 +246,7 @@ res.asm
     226	2179			     endp
     227
     228	2179  C9 CD BB C7 00 C7	C8+  frame db 0c9h, 0cdh, 0bbh,	0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 5
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 5
 res.asm
 
 
@@ -308,7 +308,7 @@ res.asm
     283	21A0			     print_hex_symb proc
     284	21A0  80 FB 09			 cmp bl, 09h
     285	21A3  7F 06			 jg @@letter
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 6
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 6
 res.asm
 
 
@@ -370,7 +370,7 @@ res.asm
     340	21DC  AD			     lodsw
     341	21DD  AB			     stosw
     342	21DE  E2 FC			     loop @@print
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 7
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 7
 res.asm
 
 
@@ -379,51 +379,53 @@ res.asm
     344	21E0  C3			 ret
     345	21E1			     endp
     346
-    347				     ; copy_draw_buffer	proc
-    348				     ;	   mov ax, cs
-    349				     ;	   mov ds, ax
+    347	21E1			     copy_draw_buffer proc
+    348	21E1  8C C8			 mov ax, cs
+    349	21E3  8E D8			 mov ds, ax
     350
-    351				     ;	   mov ax, 0B800h
-    352				     ;	   mov es, ax
+    351	21E5  B8 B800			 mov ax, 0B800h
+    352	21E8  8E C0			 mov es, ax
     353
-    354				     ;	   lea si, draw_buffer
-    355				     ;	   xor di, di
+    354	21EA  BE 1184r			 lea si, draw_buffer
+    355	21ED  33 FF			 xor di, di
     356
-    357				     ; endp
+    357
     358
-    359				     ;===============================================================================================
-    360				     ==
-    361				     ; Destr: di, si, ax, cx, es
-    362				     ; Notes: копирует видеопамять в save_buffer
-    363				     ;===============================================================================================
-    364				     ==
-    365
-    366	21E1			     make_save_buffer proc
+    359	21EF			     endp
+    360
+    361				     ;===============================================================================================
+    362				     ==
+    363				     ; Destr: di, si, ax, cx, es
+    364				     ; Notes: копирует видеопамять в save_buffer
+    365				     ;===============================================================================================
+    366				     ==
     367
-    368	21E1  BF 01E4r			 lea di, save_buffer
-    369	21E4  33 F6			 xor si, si
-    370
-    371	21E6  B8 B800			 mov ax, 0B800h
-    372	21E9  8E D8			 mov ds, ax
-    373
-    374	21EB  8C C8			 mov ax, cs
-    375	21ED  8E C0			 mov es, ax
-    376
-    377	21EF  B9 07D0			 mov cx, 2000d
+    368	21EF			     make_save_buffer proc
+    369
+    370	21EF  BF 01E4r			 lea di, save_buffer
+    371	21F2  33 F6			 xor si, si
+    372
+    373	21F4  B8 B800			 mov ax, 0B800h
+    374	21F7  8E D8			 mov ds, ax
+    375
+    376	21F9  8C C8			 mov ax, cs
+    377	21FB  8E C0			 mov es, ax
     378
-    379	21F2				 @@cicle:
-    380	21F2  AD			     lodsw
-    381	21F3  AB			     stosw
-    382	21F4  E2 FC			     loop @@cicle
-    383
-    384	21F6  8C C8			 mov ax, cs
-    385	21F8  8E D8			 mov ds, ax
-    386	21FA  C3			 ret
-    387	21FB			     endp
-    388
-    389	21FB			     EOP:
-    390				     end Start
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 8
+    379	21FD  B9 07D0			 mov cx, 2000d
+    380
+    381	2200				 @@cicle:
+    382	2200  AD			     lodsw
+    383	2201  AB			     stosw
+    384	2202  E2 FC			     loop @@cicle
+    385
+    386	2204  8C C8			 mov ax, cs
+    387	2206  8E D8			 mov ds, ax
+    388	2208  C3			 ret
+    389	2209			     endp
+    390
+    391	2209			     EOP:
+    392				     end Start
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 8
 Symbol Table
 
 
@@ -433,11 +435,11 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "03/03/26"
 ??FILENAME			  Text	 "res	  "
-??TIME				  Text	 "08:31:35"
+??TIME				  Text	 "10:57:51"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
 @@CICLE				  Near	 DGROUP:01A4
-@@CICLE				  Near	 DGROUP:21F2
+@@CICLE				  Near	 DGROUP:2200
 @@DRAW				  Near	 DGROUP:0182
 @@LETTER			  Near	 DGROUP:21AB
 @@LETTER_END			  Near	 DGROUP:21B1
@@ -458,16 +460,17 @@ Symbol Name			  Type	 Value
 AX_EQU_STR			  Byte	 DGROUP:2129
 BP_EQU_STR			  Byte	 DGROUP:2147
 BX_EQU_STR			  Byte	 DGROUP:212E
+COPY_DRAW_BUFFER		  Near	 DGROUP:21E1
 CS_EQU_STR			  Byte	 DGROUP:215B
 DI_EQU_STR			  Byte	 DGROUP:2142
 DRAW_BUFFER			  Word	 DGROUP:1184
 DS_EQU_STR			  Byte	 DGROUP:214C
 DX_EQU_STR			  Byte	 DGROUP:2138
-EOP				  Near	 DGROUP:21FB
+EOP				  Near	 DGROUP:2209
 ES_EQU_STR			  Byte	 DGROUP:2151
 FRAME				  Byte	 DGROUP:2179
 GET_ASCI_CODE_REG		  Near	 DGROUP:2182
-MAKE_SAVE_BUFFER		  Near	 DGROUP:21E1
+MAKE_SAVE_BUFFER		  Near	 DGROUP:21EF
 MY_INT_9			  Near	 DGROUP:0142
 OLD09OFS			  Word	 DGROUP:01DF
 OLD09SEG			  Word	 DGROUP:01E1
@@ -481,7 +484,7 @@ SP_EQU_STR			  Byte	 DGROUP:2124
 SS_EQU_STR			  Byte	 DGROUP:2156
 START				  Near	 DGROUP:0100
 X_EQU_STR			  Byte	 DGROUP:2133
-Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 9
+Turbo Assembler	 Version 4.1	    03/03/26 10:57:51	    Page 9
 Symbol Table
 
 
@@ -491,5 +494,5 @@ Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  21FB Word	  Public  CODE
+  _TEXT				  16  2209 Word	  Public  CODE
 
