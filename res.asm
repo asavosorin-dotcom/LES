@@ -17,6 +17,8 @@ Start:
 	mov bx, es
 	mov old09seg, es
 
+    call make_save_buffer
+
     xor ax, ax
     mov es, ax
 
@@ -28,7 +30,7 @@ Start:
     mov es:[bx + 2], ax
     sti
 
-        int 09h
+    int 09h
 
     mov ax, 3100h
 	mov dx, offset EOP
@@ -67,7 +69,12 @@ My_int_9 proc
     je @@old_9
 
     in al, 60h
-    cmp al, 1fh 
+
+    cmp al, 1fh ; ctrl + s
+    pushf
+
+
+    cmp al, 20h ; ctrl + D
 
     pushf
 ; ===================================================
@@ -81,6 +88,14 @@ My_int_9 proc
 ; ===================================================
     popf
 
+    jne @@draw
+    lea si, save_buffer 
+    call print_buffer
+    popf 
+    jmp @@old_9
+
+    @@draw:
+    popf
     jne @@old_9
 
     mov ax, cs
@@ -129,7 +144,8 @@ My_int_9 proc
 
     call print_frame_string
 
-    call print_draw_buffer
+    lea si, draw_buffer
+    call print_buffer
 
     @@old_9:
     add sp, 22
@@ -162,8 +178,8 @@ endp
 ; 
 ;============================================================
 
-save_buffer dw 4000 dup(0)
-draw_buffer dw 4000 dup(0)
+save_buffer dw 2000 dup(0)
+draw_buffer dw 2000 dup(0)
 Sp_equ_str db 'sp = '   
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
@@ -285,17 +301,18 @@ print_byte proc
     ret
 endp
 ;=================================================================================================
+; Start: si - адрес начала буфера
 ; Note: print draw_buffer
 ;=================================================================================================
 
-print_draw_buffer proc
+print_buffer proc
     mov ax, 0b800h
     mov es, ax 
 
     mov ax, cs 
     mov ds, ax 
 
-    lea si, draw_buffer
+    ; lea si, draw_buffer
     xor di, di
 
     mov cx, 2000d
@@ -319,6 +336,34 @@ endp
 ;     xor di, di
 
 ; endp
+
+;=================================================================================================
+; Destr: di, si, ax, cx, es
+; Notes: копирует видеопамять в save_buffer
+;=================================================================================================
+
+make_save_buffer proc
+    
+    lea di, save_buffer 
+    xor si, si 
+
+    mov ax, 0B800h
+    mov ds, ax 
+
+    mov ax, cs
+    mov es, ax
+
+    mov cx, 2000d
+
+    @@cicle:
+        lodsw 
+        stosw
+        loop @@cicle
+
+    mov ax, cs
+    mov ds, ax
+    ret    
+endp
 
 EOP:
 end Start

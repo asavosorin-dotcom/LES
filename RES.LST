@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 1
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 1
 res.asm
 
 
@@ -18,365 +18,412 @@ res.asm
      13	0100  B8 3509			 mov ax, 3509h
      14	0103  CD 21			     int 21h
      15
-     16	0105  89 1E 01C9r		     mov old09Ofs, bx
+     16	0105  89 1E 01DFr		     mov old09Ofs, bx
      17	0109  8C C3			     mov bx, es
-     18	010B  8C 06 01CBr		     mov old09seg, es
+     18	010B  8C 06 01E1r		     mov old09seg, es
      19
-     20	010F  33 C0			 xor ax, ax
-     21	0111  8E C0			 mov es, ax
-     22
-     23	0113  BB 0024			 mov bx, 4 * 09h
+     20	010F  E8 20CF			 call make_save_buffer
+     21
+     22	0112  33 C0			 xor ax, ax
+     23	0114  8E C0			 mov es, ax
      24
-     25	0116  FA			 cli
-     26	0117  26: C7 07	013Fr		 mov es:[bx], offset My_int_9
-     27	011C  8C C8			 mov ax, cs
-     28	011E  26: 89 47	02		 mov es:[bx + 2], ax
-     29	0122  FB			 sti
-     30
-     31	0123  CD 09			     int 09h
+     25	0116  BB 0024			 mov bx, 4 * 09h
+     26
+     27	0119  FA			 cli
+     28	011A  26: C7 07	0142r		 mov es:[bx], offset My_int_9
+     29	011F  8C C8			 mov ax, cs
+     30	0121  26: 89 47	02		 mov es:[bx + 2], ax
+     31	0125  FB			 sti
      32
-     33	0125  B8 3100			 mov ax, 3100h
-     34	0128  BA 410Er			     mov dx, offset EOP
-     35	012B  D1 EA D1 EA D1 EA	D1+	     shr dx, 4
-     36	      EA
-     37	0133  42			     inc dx
-     38	0134  83 C2 37			 add dx, 55
-     39	0137  CD 21			     int 21h
-     40
-     41	0139  B8 FBA2			 mov ax, 0FBA2h
-     42	013C  BB 3346			 mov bx, 3346h
-     43
-     44	013F			     My_int_9 proc
-     45	013F  50 53 06			 push ax bx es
-     46
-     47	0142  54			 push sp
-     48	0143  50			 push ax
-     49	0144  53			 push bx
-     50	0145  51			 push cx
-     51	0146  56			 push si
-     52	0147  57			 push di
-     53	0148  55			 push bp
-     54	0149  1E			 push ds
-     55	014A  06			 push es
-     56	014B  16			 push ss
-     57	014C  0E			 push cs
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 2
+     33	0126  CD 09			 int 09h
+     34
+     35	0128  B8 3100			 mov ax, 3100h
+     36	012B  BA 21FBr			     mov dx, offset EOP
+     37	012E  D1 EA D1 EA D1 EA	D1+	     shr dx, 4
+     38	      EA
+     39	0136  42			     inc dx
+     40	0137  83 C2 37			 add dx, 55
+     41	013A  CD 21			     int 21h
+     42
+     43	013C  B8 FBA2			 mov ax, 0FBA2h
+     44	013F  BB 3346			 mov bx, 3346h
+     45
+     46	0142			     My_int_9 proc
+     47	0142  50 53 06			 push ax bx es
+     48
+     49	0145  54			 push sp
+     50	0146  50			 push ax
+     51	0147  53			 push bx
+     52	0148  51			 push cx
+     53	0149  56			 push si
+     54	014A  57			 push di
+     55	014B  55			 push bp
+     56	014C  1E			 push ds
+     57	014D  06			 push es
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 2
 res.asm
 
 
 
-     58
-     59	014D  33 C0			 xor ax, ax ;!!!!!!!!!
+     58	014E  16			 push ss
+     59	014F  0E			 push cs
      60
-     61				     ; ===================================================
-     62	014F  B8 0040			 mov ax, 40h
-     63	0152  8E C0			 mov es, ax
-     64	0154  26: A0 0017		 mov al, es:[17h]
-     65	0158  A8 04			 test al, 4h
-     66				     ; ===================================================
-     67
-     68	015A  74 66			 je @@old_9
+     61	0150  33 C0			 xor ax, ax ;!!!!!!!!!
+     62
+     63				     ; ===================================================
+     64	0152  B8 0040			 mov ax, 40h
+     65	0155  8E C0			 mov es, ax
+     66	0157  26: A0 0017		 mov al, es:[17h]
+     67	015B  A8 04			 test al, 4h
+     68				     ; ===================================================
      69
-     70	015C  E4 60			 in al,	60h
-     71	015E  3C 1F			 cmp al, 1fh
-     72
-     73	0160  9C			 pushf
-     74				     ; ===================================================
-     75	0161  E4 61			     in	al, 61h
-     76	0163  0C 80			     or	al, 80h
-     77	0165  E6 61			     out 61h, al
-     78	0167  24 7F			     and al, not 80h
-     79	0169  E6 61			     out 61h, al
-     80	016B  B0 20			     mov al, 20h
-     81	016D  E6 20			     out 20h, al
-     82				     ; ===================================================
-     83	016F  9D			 popf
-     84
-     85	0170  75 50			 jne @@old_9
-     86
-     87	0172  8C C8			 mov ax, cs
-     88	0174  8E C0			 mov es, ax
-     89
-     90	0176  BF 210Er			 lea di, draw_buffer
-     91	0179  81 C7 02D0		 add di, (160 *	4 + 80)
-     92
-     93	017D  8C C8			 mov ax, cs
-     94	017F  8E D8			 mov ds, ax
-     95
-     96	0181  B4 0B			 mov ah, 0Bh
-     97					 ; mov bl, 0A2h
-     98	0183  BA 0000			 mov dx, 0
-     99
-    100	0186  BE 40A3r			 lea si, frame
-    101	0189  E8 3EFE			 call print_frame_string
-    102	018C  8B DE			 mov bx, si
-    103	018E  BE 404Er			 lea si, Sp_equ_str
+     70	015D  74 79			 je @@old_9
+     71
+     72	015F  E4 60			 in al,	60h
+     73
+     74	0161  3C 1F			 cmp al, 1fh ; ctrl + s
+     75	0163  9C			 pushf
+     76
+     77
+     78	0164  3C 20			 cmp al, 20h ; ctrl + D
+     79
+     80	0166  9C			 pushf
+     81				     ; ===================================================
+     82	0167  E4 61			     in	al, 61h
+     83	0169  0C 80			     or	al, 80h
+     84	016B  E6 61			     out 61h, al
+     85	016D  24 7F			     and al, not 80h
+     86	016F  E6 61			     out 61h, al
+     87	0171  B0 20			     mov al, 20h
+     88	0173  E6 20			     out 20h, al
+     89				     ; ===================================================
+     90	0175  9D			 popf
+     91
+     92	0176  75 0A			 jne @@draw
+     93	0178  BE 01E4r			 lea si, save_buffer
+     94	017B  E8 2050			 call print_buffer
+     95	017E  9D			 popf
+     96	017F  EB 57 90			 jmp @@old_9
+     97
+     98	0182				 @@draw:
+     99	0182  9D			 popf
+    100	0183  75 53			 jne @@old_9
+    101
+    102	0185  8C C8			 mov ax, cs
+    103	0187  8E C0			 mov es, ax
     104
-    105	0191				 @@cicle:
-    106	0191  B9 0005			     mov cx, 5
-    107	0194  8A 07			     mov al, [bx]
-    108	0196  26: 89 05			     mov word ptr es:[di], ax
-    109	0199  83 C7 04			     add di, 4
+    105	0189  BF 1184r			 lea di, draw_buffer
+    106	018C  81 C7 02D0		 add di, (160 *	4 + 80)
+    107
+    108	0190  8C C8			 mov ax, cs
+    109	0192  8E D8			 mov ds, ax
     110
-    111					     ;вот тут писать символ рамки
-    112	019C				     @@p:
-    113	019C  AC				 lodsb
-    114	019D  AB				 stosw
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 3
+    111	0194  B4 0B			 mov ah, 0Bh
+    112					 ; mov bl, 0A2h
+    113	0196  BA 0000			 mov dx, 0
+    114
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 3
 res.asm
 
 
 
-    115	019E  E2 FC				 loop @@p
-    116	01A0  E8 3F09			     call get_asci_code_reg
-    117					     ; тут тоже символ рамки,	надо перенести из	    +
-    118				     функции команду на	смещение
+    115	0199  BE 2179r			 lea si, frame
+    116	019C  E8 1FC1			 call print_frame_string
+    117	019F  8B DE			 mov bx, si
+    118	01A1  BE 2124r			 lea si, Sp_equ_str
     119
-    120	01A3  83 C7 02			     add di, 2
-    121	01A6  8A 47 02			     mov al, [bx + 2]
-    122	01A9  26: 89 05			     mov word ptr es:[di], ax
-    123
-    124	01AC  81 C7 0088		     add di, 136
-    125	01B0  42			     inc dx
-    126	01B1  83 FA 0C			     cmp dx, 12
-    127	01B4  75 DB			     jne @@cicle
-    128
-    129	01B6  BE 40A3r			 lea si, frame
-    130	01B9  83 C6 06			 add si, 6
-    131
-    132	01BC  E8 3ECB			 call print_frame_string
-    133
-    134	01BF  E8 3F36			 call print_draw_buffer
-    135
-    136	01C2				 @@old_9:
-    137	01C2  83 C4 16			 add sp, 22
-    138	01C5  07 5B 58			 pop es	bx ax
-    139	01C8  EA			 db 0eah
-    140	01C9  0000			     old09Ofs dw 0
-    141	01CB  0000			     old09seg dw 0
-    142
-    143	01CD  CF			 iret
-    144
-    145	01CE			     endp
+    120	01A4				 @@cicle:
+    121	01A4  B9 0005			     mov cx, 5
+    122	01A7  8A 07			     mov al, [bx]
+    123	01A9  26: 89 05			     mov word ptr es:[di], ax
+    124	01AC  83 C7 04			     add di, 4
+    125
+    126					     ;вот тут писать символ рамки
+    127	01AF				     @@p:
+    128	01AF  AC				 lodsb
+    129	01B0  AB				 stosw
+    130	01B1  E2 FC				 loop @@p
+    131	01B3  E8 1FCC			     call get_asci_code_reg
+    132					     ; тут тоже символ рамки,	надо перенести из	    +
+    133				     функции команду на	смещение
+    134
+    135	01B6  83 C7 02			     add di, 2
+    136	01B9  8A 47 02			     mov al, [bx + 2]
+    137	01BC  26: 89 05			     mov word ptr es:[di], ax
+    138
+    139	01BF  81 C7 0088		     add di, 136
+    140	01C3  42			     inc dx
+    141	01C4  83 FA 0C			     cmp dx, 12
+    142	01C7  75 DB			     jne @@cicle
+    143
+    144	01C9  BE 2179r			 lea si, frame
+    145	01CC  83 C6 06			 add si, 6
     146
-    147				     ; My_int_8	proc
-    148				     ;	   push	ax bx es
-    149
-    150				     ;	   ;сравнить два буфера
+    147	01CF  E8 1F8E			 call print_frame_string
+    148
+    149	01D2  BE 1184r			 lea si, draw_buffer
+    150	01D5  E8 1FF6			 call print_buffer
     151
-    152				     ;	   pop es bx ax
-    153				     ;	   db 0eah
-    154				     ;	   old08Ofs dw 0
-    155				     ;	   old08Ofs dw 0
-    156				     ; endp
-    157
-    158					 ; mov ax, 4c00h
-    159					 ; int 21h
+    152	01D8				 @@old_9:
+    153	01D8  83 C4 16			 add sp, 22
+    154	01DB  07 5B 58			 pop es	bx ax
+    155	01DE  EA			 db 0eah
+    156	01DF  0000			     old09Ofs dw 0
+    157	01E1  0000			     old09seg dw 0
+    158
+    159	01E3  CF			 iret
     160
-    161
-    162				     ;============================================================
-    163				     ; Start: bx - смещение в буфере
-    164				     ;
-    165				     ;============================================================
-    166
-    167	01CE  0FA0*(0000)	     save_buffer dw 4000 dup(0)
-    168	210E  0FA0*(0000)	     draw_buffer dw 4000 dup(0)
-    169	404E  73 70 20 3D 20	     Sp_equ_str	db 'sp = '
-    170	4053  61 78 20 3D 20	     Ax_equ_str	db 'ax = '
-    171	4058  62 78 20 3D 20	     Bx_equ_str	db 'bx = '
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 4
+    161	01E4			     endp
+    162
+    163				     ; My_int_8	proc
+    164				     ;	   push	ax bx es
+    165
+    166				     ;	   ;сравнить два буфера
+    167
+    168				     ;	   pop es bx ax
+    169				     ;	   db 0eah
+    170				     ;	   old08Ofs dw 0
+    171				     ;	   old08Ofs dw 0
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 4
 res.asm
 
 
 
-    172	405D  63 78 20 3D 20	     Сx_equ_str db 'cx	= '
-    173	4062  64 78 20 3D 20	     Dx_equ_str	db 'dx = '
-    174	4067  73 69 20 3D 20	     Si_equ_str	db 'si = '
-    175	406C  64 69 20 3D 20	     Di_equ_str	db 'di = '
-    176	4071  62 70 20 3D 20	     Bp_equ_str	db 'bp = '
-    177	4076  64 73 20 3D 20	     Ds_equ_str	db 'ds = '
-    178	407B  65 73 20 3D 20	     Es_equ_str	db 'es = '
-    179	4080  73 73 20 3D 20	     Ss_equ_str	db 'ss = '
-    180	4085  63 73 20 3D 20	     Cs_equ_str	db 'cs = '
-    181
-    182				     ;===============================================================================================
-    183				     ==
-    184				     ; Start: di - нужное	значение координаты начала рамки, si - +
-    185				     нужный символ
-    186				     ; Destr: di, si
-    187				     ; Note: изменение	di эквивалентно переносу строки
-    188				     ;===============================================================================================
-    189				     ==
-    190	408A			     print_frame_string	proc
-    191	408A  57			 push di
-    192					 ; lea si, frame
-    193	408B  8A 04			 mov al, [si]
-    194					 ; mov es, cs
-    195
-    196	408D  AB			 stosw
-    197	408E  46			 inc si
-    198	408F  B9 000B			 mov cx, 11
-    199	4092  8A 04			 mov al, [si]
-    200	4094  F2> AB			 repne stosw
-    201
-    202	4096  46			 inc si
-    203	4097  8A 04			 mov al, [si]
-    204	4099  46			 inc si
-    205	409A  AB			 stosw
-    206	409B  8A 04			 mov al, [si]
-    207	409D  5F			 pop di
-    208	409E  81 C7 00A0		 add di, 160d
-    209	40A2  C3			 ret
-    210	40A3			     endp
+    172				     ; endp
+    173
+    174					 ; mov ax, 4c00h
+    175					 ; int 21h
+    176
+    177
+    178				     ;============================================================
+    179				     ; Start: bx - смещение в буфере
+    180				     ;
+    181				     ;============================================================
+    182
+    183	01E4  07D0*(0000)	     save_buffer dw 2000 dup(0)
+    184	1184  07D0*(0000)	     draw_buffer dw 2000 dup(0)
+    185	2124  73 70 20 3D 20	     Sp_equ_str	db 'sp = '
+    186	2129  61 78 20 3D 20	     Ax_equ_str	db 'ax = '
+    187	212E  62 78 20 3D 20	     Bx_equ_str	db 'bx = '
+    188	2133  63 78 20 3D 20	     Сx_equ_str db 'cx	= '
+    189	2138  64 78 20 3D 20	     Dx_equ_str	db 'dx = '
+    190	213D  73 69 20 3D 20	     Si_equ_str	db 'si = '
+    191	2142  64 69 20 3D 20	     Di_equ_str	db 'di = '
+    192	2147  62 70 20 3D 20	     Bp_equ_str	db 'bp = '
+    193	214C  64 73 20 3D 20	     Ds_equ_str	db 'ds = '
+    194	2151  65 73 20 3D 20	     Es_equ_str	db 'es = '
+    195	2156  73 73 20 3D 20	     Ss_equ_str	db 'ss = '
+    196	215B  63 73 20 3D 20	     Cs_equ_str	db 'cs = '
+    197
+    198				     ;===============================================================================================
+    199				     ==
+    200				     ; Start: di - нужное	значение координаты начала рамки, si - +
+    201				     нужный символ
+    202				     ; Destr: di, si
+    203				     ; Note: изменение	di эквивалентно переносу строки
+    204				     ;===============================================================================================
+    205				     ==
+    206	2160			     print_frame_string	proc
+    207	2160  57			 push di
+    208					 ; lea si, frame
+    209	2161  8A 04			 mov al, [si]
+    210					 ; mov es, cs
     211
-    212	40A3  C9 CD BB C7 00 C7	C8+  frame db 0c9h, 0cdh, 0bbh,	0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch
-    213	      CD BC
-    214				     ; c9 cd bb
-    215				     ; c7 00 c7
-    216				     ; c8 cd bc
+    212	2163  AB			 stosw
+    213	2164  46			 inc si
+    214	2165  B9 000B			 mov cx, 11
+    215	2168  8A 04			 mov al, [si]
+    216	216A  F2> AB			 repne stosw
     217
-    218				     ;===============================================================================================
-    219				     ==
-    220				     ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx,   +
-    221				     dx, si, di, bp, ds, es, ss, cs)
-    222				     ;	      dx - номер регистра в стеке, di - место в буфере, es - +
-    223				     сегмент буфера
-    224				     ; Destr: al, di, es
-    225				     ;===============================================================================================
-    226				     ==
-    227	40AC			     get_asci_code_reg proc
-    228	40AC  52			 push dx
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 5
+    218	216C  46			 inc si
+    219	216D  8A 04			 mov al, [si]
+    220	216F  46			 inc si
+    221	2170  AB			 stosw
+    222	2171  8A 04			 mov al, [si]
+    223	2173  5F			 pop di
+    224	2174  81 C7 00A0		 add di, 160d
+    225	2178  C3			 ret
+    226	2179			     endp
+    227
+    228	2179  C9 CD BB C7 00 C7	C8+  frame db 0c9h, 0cdh, 0bbh,	0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 5
 res.asm
 
 
 
-    229	40AD  53			 push bx
-    230
-    231					 ; push	di
-    232	40AE  55			 push bp
-    233	40AF  8B EC			 mov bp, sp
-    234	40B1  83 C5 1C			 add bp, 28
-    235
-    236	40B4  33 DB			 xor bx, bx
-    237					 ; mov ax, cs
-    238					 ; mov es, ax
-    239
-    240	40B6  D1 E2			 shl dx, 1
-    241	40B8  2B EA			 sub bp, dx ; bp -> value of register
-    242
-    243	40BA  8A 5E 01			 mov bl, [bp + 1]
-    244	40BD  E8 001F			 call print_byte
-    245
-    246	40C0  8A 5E 00			 mov bl, [bp]
-    247	40C3  E8 0019			 call print_byte
-    248
-    249	40C6  5D			 pop bp
-    250					 ; pop di
+    229	      CD BC
+    230				     ; c9 cd bb
+    231				     ; c7 00 c7
+    232				     ; c8 cd bc
+    233
+    234				     ;===============================================================================================
+    235				     ==
+    236				     ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx,   +
+    237				     dx, si, di, bp, ds, es, ss, cs)
+    238				     ;	      dx - номер регистра в стеке, di - место в буфере, es - +
+    239				     сегмент буфера
+    240				     ; Destr: al, di, es
+    241				     ;===============================================================================================
+    242				     ==
+    243	2182			     get_asci_code_reg proc
+    244	2182  52			 push dx
+    245	2183  53			 push bx
+    246
+    247					 ; push	di
+    248	2184  55			 push bp
+    249	2185  8B EC			 mov bp, sp
+    250	2187  83 C5 1C			 add bp, 28
     251
-    252	40C7  5B			 pop bx
-    253	40C8  5A			 pop dx
-    254	40C9  C3			 ret
-    255	40CA			     endp
-    256
-    257				     ;===============================================================================================
-    258				     ==
-    259				     ; Start: в bl шестнадцатиричная цифра, es:di - адрес для	    +
-    260				     печати числа, ah - стиль
-    261				     ; Destr: bl, dx, al, di, es
-    262				     ; Note: в	bl преобразует младшие 4 бита в ASCI код hex и	    +
-    263				     печатает в буфер
-    264				     ;===============================================================================================
-    265				     ==
-    266
-    267	40CA			     print_hex_symb proc
-    268	40CA  80 FB 09			 cmp bl, 09h
-    269	40CD  7F 06			 jg @@letter
-    270
-    271	40CF  80 C3 30			 add bl, '0'
-    272	40D2  EB 07 90			 jmp @@letter_end
-    273
-    274	40D5				 @@letter:
-    275	40D5  80 C3 41			 add bl, 'A'
-    276	40D8  80 EB 0A			 sub bl, 0Ah
-    277	40DB				 @@letter_end:
-    278	40DB  8A C3			 mov al, bl
-    279	40DD  AB			 stosw
-    280
-    281	40DE  C3			 ret
-    282	40DF			     endp
-    283				     ;===============================================================================================
-    284				     ==
-    285				     ; Start: в bl - байт для печати, es:di - адрес для печати числа
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 6
+    252	218A  33 DB			 xor bx, bx
+    253					 ; mov ax, cs
+    254					 ; mov es, ax
+    255
+    256	218C  D1 E2			 shl dx, 1
+    257	218E  2B EA			 sub bp, dx ; bp -> value of register
+    258
+    259	2190  8A 5E 01			 mov bl, [bp + 1]
+    260	2193  E8 001F			 call print_byte
+    261
+    262	2196  8A 5E 00			 mov bl, [bp]
+    263	2199  E8 0019			 call print_byte
+    264
+    265	219C  5D			 pop bp
+    266					 ; pop di
+    267
+    268	219D  5B			 pop bx
+    269	219E  5A			 pop dx
+    270	219F  C3			 ret
+    271	21A0			     endp
+    272
+    273				     ;===============================================================================================
+    274				     ==
+    275				     ; Start: в bl шестнадцатиричная цифра, es:di - адрес для	    +
+    276				     печати числа, ah - стиль
+    277				     ; Destr: bl, dx, al, di, es
+    278				     ; Note: в	bl преобразует младшие 4 бита в ASCI код hex и	    +
+    279				     печатает в буфер
+    280				     ;===============================================================================================
+    281				     ==
+    282
+    283	21A0			     print_hex_symb proc
+    284	21A0  80 FB 09			 cmp bl, 09h
+    285	21A3  7F 06			 jg @@letter
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 6
 res.asm
 
 
 
-    286				     ; Destr: bl, dx, al, di, es
-    287				     ; Note: выводит bl в буфер в	виде ASCI кода
-    288				     ;===============================================================================================
-    289				     ==
-    290	40DF			     print_byte	proc
-    291	40DF  8A D3			 mov dl, bl
-    292	40E1  80 E3 F0			 and bl, 0f0h ;	старшие 4 бита
-    293	40E4  D0 EB D0 EB D0 EB	D0+	 shr bl, 4
-    294	      EB
-    295
-    296	40EC  E8 FFDB			 call print_hex_symb
-    297
-    298	40EF  8A DA			 mov bl, dl
-    299	40F1  80 E3 0F			 and bl, 0fh ; младшие 4	бита
-    300
-    301	40F4  E8 FFD3			 call print_hex_symb
-    302	40F7  C3			 ret
-    303	40F8			     endp
+    286
+    287	21A5  80 C3 30			 add bl, '0'
+    288	21A8  EB 07 90			 jmp @@letter_end
+    289
+    290	21AB				 @@letter:
+    291	21AB  80 C3 41			 add bl, 'A'
+    292	21AE  80 EB 0A			 sub bl, 0Ah
+    293	21B1				 @@letter_end:
+    294	21B1  8A C3			 mov al, bl
+    295	21B3  AB			 stosw
+    296
+    297	21B4  C3			 ret
+    298	21B5			     endp
+    299				     ;===============================================================================================
+    300				     ==
+    301				     ; Start: в bl - байт для печати, es:di - адрес для печати числа
+    302				     ; Destr: bl, dx, al, di, es
+    303				     ; Note: выводит bl в буфер в	виде ASCI кода
     304				     ;===============================================================================================
     305				     ==
-    306				     ; Note: print draw_buffer
-    307				     ;===============================================================================================
-    308				     ==
-    309
-    310	40F8			     print_draw_buffer proc
-    311	40F8  B8 B800			 mov ax, 0b800h
-    312	40FB  8E C0			 mov es, ax
+    306	21B5			     print_byte	proc
+    307	21B5  8A D3			 mov dl, bl
+    308	21B7  80 E3 F0			 and bl, 0f0h ;	старшие 4 бита
+    309	21BA  D0 EB D0 EB D0 EB	D0+	 shr bl, 4
+    310	      EB
+    311
+    312	21C2  E8 FFDB			 call print_hex_symb
     313
-    314	40FD  8C C8			 mov ax, cs
-    315	40FF  8E D8			 mov ds, ax
+    314	21C5  8A DA			 mov bl, dl
+    315	21C7  80 E3 0F			 and bl, 0fh ; младшие 4	бита
     316
-    317	4101  BE 210Er			 lea si, draw_buffer
-    318	4104  33 FF			 xor di, di
-    319
-    320	4106  B9 07D0			 mov cx, 2000d
-    321
-    322	4109				 @@print:
-    323	4109  AD			     lodsw
-    324	410A  AB			     stosw
-    325	410B  E2 FC			     loop @@print
+    317	21CA  E8 FFD3			 call print_hex_symb
+    318	21CD  C3			 ret
+    319	21CE			     endp
+    320				     ;===============================================================================================
+    321				     ==
+    322				     ; Start: si - адрес начала буфера
+    323				     ; Note: print draw_buffer
+    324				     ;===============================================================================================
+    325				     ==
     326
-    327	410D  C3			 ret
-    328	410E			     endp
-    329
-    330				     ; copy_draw_buffer	proc
-    331				     ;	   mov ax, cs
-    332				     ;	   mov ds, ax
+    327	21CE			     print_buffer proc
+    328	21CE  B8 B800			 mov ax, 0b800h
+    329	21D1  8E C0			 mov es, ax
+    330
+    331	21D3  8C C8			 mov ax, cs
+    332	21D5  8E D8			 mov ds, ax
     333
-    334				     ;	   mov ax, 0B800h
-    335				     ;	   mov es, ax
+    334					 ; lea si, draw_buffer
+    335	21D7  33 FF			 xor di, di
     336
-    337				     ;	   lea si, draw_buffer
-    338				     ;	   xor di, di
-    339
-    340				     ; endp
-    341
-    342	410E			     EOP:
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 7
+    337	21D9  B9 07D0			 mov cx, 2000d
+    338
+    339	21DC				 @@print:
+    340	21DC  AD			     lodsw
+    341	21DD  AB			     stosw
+    342	21DE  E2 FC			     loop @@print
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 7
 res.asm
 
 
 
-    343				     end Start
-Turbo Assembler	 Version 4.1	    03/02/26 08:11:17	    Page 8
+    343
+    344	21E0  C3			 ret
+    345	21E1			     endp
+    346
+    347				     ; copy_draw_buffer	proc
+    348				     ;	   mov ax, cs
+    349				     ;	   mov ds, ax
+    350
+    351				     ;	   mov ax, 0B800h
+    352				     ;	   mov es, ax
+    353
+    354				     ;	   lea si, draw_buffer
+    355				     ;	   xor di, di
+    356
+    357				     ; endp
+    358
+    359				     ;===============================================================================================
+    360				     ==
+    361				     ; Destr: di, si, ax, cx, es
+    362				     ; Notes: копирует видеопамять в save_buffer
+    363				     ;===============================================================================================
+    364				     ==
+    365
+    366	21E1			     make_save_buffer proc
+    367
+    368	21E1  BF 01E4r			 lea di, save_buffer
+    369	21E4  33 F6			 xor si, si
+    370
+    371	21E6  B8 B800			 mov ax, 0B800h
+    372	21E9  8E D8			 mov ds, ax
+    373
+    374	21EB  8C C8			 mov ax, cs
+    375	21ED  8E C0			 mov es, ax
+    376
+    377	21EF  B9 07D0			 mov cx, 2000d
+    378
+    379	21F2				 @@cicle:
+    380	21F2  AD			     lodsw
+    381	21F3  AB			     stosw
+    382	21F4  E2 FC			     loop @@cicle
+    383
+    384	21F6  8C C8			 mov ax, cs
+    385	21F8  8E D8			 mov ds, ax
+    386	21FA  C3			 ret
+    387	21FB			     endp
+    388
+    389	21FB			     EOP:
+    390				     end Start
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 8
 Symbol Table
 
 
@@ -384,17 +431,19 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "03/02/26"
+??DATE				  Text	 "03/03/26"
 ??FILENAME			  Text	 "res	  "
-??TIME				  Text	 "08:11:17"
+??TIME				  Text	 "08:31:35"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
-@@CICLE				  Near	 DGROUP:0191
-@@LETTER			  Near	 DGROUP:40D5
-@@LETTER_END			  Near	 DGROUP:40DB
-@@OLD_9				  Near	 DGROUP:01C2
-@@P				  Near	 DGROUP:019C
-@@PRINT				  Near	 DGROUP:4109
+@@CICLE				  Near	 DGROUP:01A4
+@@CICLE				  Near	 DGROUP:21F2
+@@DRAW				  Near	 DGROUP:0182
+@@LETTER			  Near	 DGROUP:21AB
+@@LETTER_END			  Near	 DGROUP:21B1
+@@OLD_9				  Near	 DGROUP:01D8
+@@P				  Near	 DGROUP:01AF
+@@PRINT				  Near	 DGROUP:21DC
 @CODE				  Text	 DGROUP
 @CODESIZE			  Text	 0
 @CPU				  Text	 0101H
@@ -406,35 +455,41 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-AX_EQU_STR			  Byte	 DGROUP:4053
-BP_EQU_STR			  Byte	 DGROUP:4071
-BX_EQU_STR			  Byte	 DGROUP:4058
-CS_EQU_STR			  Byte	 DGROUP:4085
-DI_EQU_STR			  Byte	 DGROUP:406C
-DRAW_BUFFER			  Word	 DGROUP:210E
-DS_EQU_STR			  Byte	 DGROUP:4076
-DX_EQU_STR			  Byte	 DGROUP:4062
-EOP				  Near	 DGROUP:410E
-ES_EQU_STR			  Byte	 DGROUP:407B
-FRAME				  Byte	 DGROUP:40A3
-GET_ASCI_CODE_REG		  Near	 DGROUP:40AC
-MY_INT_9			  Near	 DGROUP:013F
-OLD09OFS			  Word	 DGROUP:01C9
-OLD09SEG			  Word	 DGROUP:01CB
-PRINT_BYTE			  Near	 DGROUP:40DF
-PRINT_DRAW_BUFFER		  Near	 DGROUP:40F8
-PRINT_FRAME_STRING		  Near	 DGROUP:408A
-PRINT_HEX_SYMB			  Near	 DGROUP:40CA
-SAVE_BUFFER			  Word	 DGROUP:01CE
-SI_EQU_STR			  Byte	 DGROUP:4067
-SP_EQU_STR			  Byte	 DGROUP:404E
-SS_EQU_STR			  Byte	 DGROUP:4080
+AX_EQU_STR			  Byte	 DGROUP:2129
+BP_EQU_STR			  Byte	 DGROUP:2147
+BX_EQU_STR			  Byte	 DGROUP:212E
+CS_EQU_STR			  Byte	 DGROUP:215B
+DI_EQU_STR			  Byte	 DGROUP:2142
+DRAW_BUFFER			  Word	 DGROUP:1184
+DS_EQU_STR			  Byte	 DGROUP:214C
+DX_EQU_STR			  Byte	 DGROUP:2138
+EOP				  Near	 DGROUP:21FB
+ES_EQU_STR			  Byte	 DGROUP:2151
+FRAME				  Byte	 DGROUP:2179
+GET_ASCI_CODE_REG		  Near	 DGROUP:2182
+MAKE_SAVE_BUFFER		  Near	 DGROUP:21E1
+MY_INT_9			  Near	 DGROUP:0142
+OLD09OFS			  Word	 DGROUP:01DF
+OLD09SEG			  Word	 DGROUP:01E1
+PRINT_BUFFER			  Near	 DGROUP:21CE
+PRINT_BYTE			  Near	 DGROUP:21B5
+PRINT_FRAME_STRING		  Near	 DGROUP:2160
+PRINT_HEX_SYMB			  Near	 DGROUP:21A0
+SAVE_BUFFER			  Word	 DGROUP:01E4
+SI_EQU_STR			  Byte	 DGROUP:213D
+SP_EQU_STR			  Byte	 DGROUP:2124
+SS_EQU_STR			  Byte	 DGROUP:2156
 START				  Near	 DGROUP:0100
-X_EQU_STR			  Byte	 DGROUP:405D
+X_EQU_STR			  Byte	 DGROUP:2133
+Turbo Assembler	 Version 4.1	    03/03/26 08:31:35	    Page 9
+Symbol Table
+
+
+
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  410E Word	  Public  CODE
+  _TEXT				  16  21FB Word	  Public  CODE
 
