@@ -17,6 +17,13 @@ Start:
 	mov bx, es
 	mov old09seg, es
 
+    mov ax, 3508h
+    int 21h 
+
+	mov old08Ofs, bx
+	mov bx, es
+	mov old08seg, es
+
     call make_save_buffer
 
     xor ax, ax
@@ -28,9 +35,21 @@ Start:
     mov es:[bx], offset My_int_9
     mov ax, cs
     mov es:[bx + 2], ax
+
+    sub bx, 4
+
+    mov es:[bx], offset My_int_8
+    mov es:[bx + 2], ax
+
     sti
 
-    int 09h
+    ; int 09h
+    ; mov cx, 5
+    ; @@11:
+    ; push cx
+    ; call copy_draw_buffer
+    ; pop cx
+    ; loop @@11 
 
     mov ax, 3100h
 	mov dx, offset EOP
@@ -43,7 +62,7 @@ Start:
     mov bx, 3346h
 
 My_int_9 proc
-    push ax bx es
+    push ax bx es ds
 
     push sp
     push ax 
@@ -73,8 +92,7 @@ My_int_9 proc
     cmp al, 1fh ; ctrl + s
     pushf
 
-
-    cmp al, 21h ; ctrl + D
+    cmp al, 21h ; ctrl + f
 
     pushf
 ; ===================================================
@@ -97,6 +115,8 @@ My_int_9 proc
     @@draw:
     popf
     jne @@old_9
+
+    ; call copy_draw_buffer
 
     mov ax, cs
     mov es, ax
@@ -127,6 +147,7 @@ My_int_9 proc
             lodsb
             stosw
             loop @@p
+
         call get_asci_code_reg
         ; тут тоже символ рамки, надо перенести из функции команду на смещение
 
@@ -149,7 +170,7 @@ My_int_9 proc
 
     @@old_9:
     add sp, 22
-    pop es bx ax 
+    pop ds es bx ax 
     db 0eah
 	old09Ofs dw 0
 	old09seg dw 0
@@ -158,16 +179,23 @@ My_int_9 proc
 
 endp
 
-; My_int_8 proc
-;     push ax bx es
+My_int_8 proc
+    cli
+    push ax bx cx dx di es ds
+    pushf
 
-;     ;сравнить два буфера
+    call copy_draw_buffer
 
-;     pop es bx ax 
-;     db 0eah
-;     old08Ofs dw 0 
-;     old08Ofs dw 0
-; endp
+    mov al, 20h
+    out 20h, al
+    popf
+    pop ds es di dx cx bx ax 
+    db 0eah
+    old08Ofs dw 0 
+    old08seg dw 0
+    sti
+    iret
+endp
 
     ; mov ax, 4c00h
     ; int 21h
@@ -325,6 +353,11 @@ print_buffer proc
     ret
 endp
 
+;=================================================================================================
+; Start: si - адрес начала буфера
+; Note: print draw_buffer
+;=================================================================================================
+
 copy_draw_buffer proc
     mov ax, cs 
     mov ds, ax 
@@ -333,10 +366,33 @@ copy_draw_buffer proc
     mov es, ax
  
     lea si, draw_buffer
+    lea bx, save_buffer
     xor di, di
 
+    mov cx, 2000d
 
+    @@cicle:
+        mov ax, ds:[si]     
+        mov dx, es:[di]
 
+        cmp ax, dx
+        jne @@no_equ
+        add di, 2
+        add si, 2
+        add bx, 2
+        loop @@cicle
+        jmp @@end
+
+    @@no_equ:
+        mov word ptr ds:[si], dx
+        mov word ptr ds:[bx], dx
+        add di, 2
+        add si, 2
+        add bx, 2
+        loop @@cicle
+
+    @@end:
+    ret
 endp
 
 ;=================================================================================================
