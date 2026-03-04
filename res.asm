@@ -2,11 +2,15 @@
 .code 
 
 locals @@
+
+; ОТДЕБАЖИТЬ ВЫВОД РАМКИ !!!!!!!!!
+
 ; подумать над названием буфера
 ; заносить туда строку с rx = val 
 ; потом печатать этот буфер
 ; пушить в стек все регистры, чтобы их не потерять
 
+; чекать только рамку, а не весь экран, возможная причина поломки таймера 
 org 100h
 
 Start:
@@ -36,14 +40,14 @@ Start:
     mov ax, cs
     mov es:[bx + 2], ax
 
-    sub bx, 4
+    ; sub bx, 4
 
-    mov es:[bx], offset My_int_8
-    mov es:[bx + 2], ax
+    ; mov es:[bx], offset My_int_8
+    ; mov es:[bx + 2], ax
 
     sti
 
-    ; int 09h
+    int 09h
     ; mov cx, 5
     ; @@11:
     ; push cx
@@ -122,7 +126,7 @@ My_int_9 proc
     mov es, ax
     
     lea di, draw_buffer
-    add di, (160 * 4 + 80)
+    ; add di, (160 * 4 + 80) ###########
 
     mov ax, cs
     mov ds, ax
@@ -137,27 +141,29 @@ My_int_9 proc
     lea si, Sp_equ_str
 
     @@cicle:
+        ; push di
         mov cx, 5
         mov al, [bx]
-        mov word ptr es:[di], ax
+        mov word ptr es:[di], ax    
         add di, 4
 
-        ;вот тут писать символ рамки
         @@p:
             lodsb
             stosw
             loop @@p
 
         call get_asci_code_reg
-        ; тут тоже символ рамки, надо перенести из функции команду на смещение
 
         add di, 2
         mov al, [bx + 2]
         mov word ptr es:[di], ax
+        add di, 2
 
-        add di, 136
+        ; add di, 134
         inc dx
         cmp dx, 12
+        ; pop di 
+        ; add di, 160d
         jne @@cicle
 
     lea si, frame
@@ -166,7 +172,7 @@ My_int_9 proc
     call print_frame_string
 
     lea si, draw_buffer
-    call print_buffer
+    call print_buffer ; debug
 
     @@old_9:
     add sp, 22
@@ -206,8 +212,8 @@ endp
 ; 
 ;============================================================
 
-save_buffer dw 2000 dup(0)
-draw_buffer dw 2000 dup(0)
+save_buffer dw 351 dup(0)
+draw_buffer dw 351 dup(0)
 Sp_equ_str db 'sp = '   
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
@@ -221,13 +227,13 @@ Es_equ_str db 'es = '
 Ss_equ_str db 'ss = '
 Cs_equ_str db 'cs = '
 
-;=================================================================================================
+;===================================================================================================
 ; Start: di - нужное значение координаты начала рамки, si - нужный символ
 ; Destr: di, si
-; Note: изменение di эквивалентно переносу строки
-;=================================================================================================
+; Note: /*изменение di эквивалентно переносу строки*/ di должен идти по порядку в уменьшенном буфере
+;===================================================================================================
 print_frame_string proc
-    push di
+    ; push di
     ; lea si, frame
     mov al, [si] 
     ; mov es, cs
@@ -243,8 +249,8 @@ print_frame_string proc
     inc si
     stosw
     mov al, [si]
-    pop di
-    add di, 160d
+    ; pop di
+    ; add di, 160d
     ret
 endp
 
@@ -341,14 +347,25 @@ print_buffer proc
     mov ds, ax 
 
     ; lea si, draw_buffer
-    xor di, di
+    ; xor di, di ############################
+    mov di, (160 * 4 + 80)
 
-    mov cx, 2000d
-    
+    mov cx, 182d ; 13 * 14
+    xor bx, bx
+
     @@print:
         lodsw
         stosw
+        inc bx 
+        cmp bx, 13
+        je @@enter
         loop @@print 
+
+        @@enter:
+            xor bx, bx
+            ; add si, 134d
+            add di, 134d
+            loop @@print
 
     ret
 endp
@@ -369,7 +386,8 @@ copy_draw_buffer proc
     lea bx, save_buffer
     xor di, di
 
-    mov cx, 2000d
+    xor dx, dx ; counter
+    mov cx, 351d
 
     @@cicle:
         mov ax, ds:[si]     
@@ -380,6 +398,13 @@ copy_draw_buffer proc
         add di, 2
         add si, 2
         add bx, 2
+        inc dx
+        cmp dx, 13
+        jne @@after_enter
+        xor dx, dx 
+        add si, 134d
+        add di, 134d
+        @@after_enter:
         loop @@cicle
         jmp @@end
 
@@ -411,7 +436,7 @@ make_save_buffer proc
     mov ax, cs
     mov es, ax
 
-    mov cx, 2000d
+    mov cx, 351d
 
     @@cicle:
         lodsw 
