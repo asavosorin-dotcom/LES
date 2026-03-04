@@ -169,6 +169,8 @@ My_int_9 proc
         ; add di, 160d
         jne @@cicle
 
+    ; цикл для флагов будет тут
+
     lea si, frame
     add si, 6   
 
@@ -221,8 +223,8 @@ endp
 ; 
 ;============================================================
 
-save_buffer dw 351 dup(0)
-draw_buffer dw 351 dup(0)
+save_buffer dw 182 dup(0)
+draw_buffer dw 182 dup(0)
 Sp_equ_str db 'sp = '   
 Ax_equ_str db 'ax = '
 Bx_equ_str db 'bx = '
@@ -267,6 +269,72 @@ frame db 0c9h, 0cdh, 0bbh, 0c7h, 00h, 0c7h, 0c8h, 0cdh, 0bch
 ; c9 cd bb
 ; c7 00 c7
 ; c8 cd bc
+
+;================================================================================================
+; Start: флаги лежат последние в стеке
+;
+; Notes: компанует флаги в младшей части регистра
+;================================================================================================
+
+get_flag_register proc
+    push bp
+    mov bp, sp
+    add bp, 4
+
+    mov ax, [bp]
+    xor bx, bx 
+
+;================ c =====================
+    mov cx, ax
+    or cx, 1h
+
+    or bx, cx
+;================ z =====================
+    mov cx, ax
+    or cx, 40h
+    shr cx, 5
+
+    or bx, cx
+;================ s =====================
+    mov cx, ax
+    or cx, 80h 
+    shr cx, 5
+
+    or bx, cx
+;================ o =====================
+    mov cx, ax
+    or cx, 800h 
+    shr cx, 8
+
+    or bx, cx
+;================ p =====================
+    mov cx, ax
+    or cx, 2h 
+    shl cx, 3
+ 
+    or bx, cx
+;================ a =====================
+    mov cx, ax
+    or cx, 10h 
+    shl cx, 1
+
+    or bx, cx
+;================ i =====================
+    mov cx, ax
+    or cx, 200h 
+    shr cx, 3
+
+    or bx, cx
+;================ d =====================
+    mov cx, ax
+    or cx, 400h 
+    shr cx, 3
+
+    or bx, cx
+
+    pop bp 
+    ret
+endp
 
 ;=================================================================================================
 ; Start: в стеке лежат все регистры в порядке (sp, ax, bx, cx, dx, si, di, bp, ds, es, ss, cs)
