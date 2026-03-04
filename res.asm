@@ -47,7 +47,7 @@ Start:
 
     sti
 
-    int 09h
+    ; int 09h
     ; mov cx, 5
     ; @@11:
     ; push cx
@@ -120,7 +120,7 @@ My_int_9 proc
     popf
     jne @@old_9
 
-    ; call copy_draw_buffer
+    call copy_draw_buffer
 
     mov ax, cs
     mov es, ax
@@ -372,10 +372,13 @@ endp
 
 ;=================================================================================================
 ; Start: si - адрес начала буфера
+; Reg: di - индекс байта в видеопамяти, bx - индекс в save_buffer
 ; Note: print draw_buffer
 ;=================================================================================================
 
 copy_draw_buffer proc
+    push bp
+
     mov ax, cs 
     mov ds, ax 
 
@@ -384,27 +387,29 @@ copy_draw_buffer proc
  
     lea si, draw_buffer
     lea bx, save_buffer
-    xor di, di
+    mov di, (160 * 4 + 80) 
+    ; xor di, di
 
-    xor dx, dx ; counter
-    mov cx, 351d
+    xor bp, bp ; counter
+    mov cx, 182d
 
     @@cicle:
         mov ax, ds:[si]     
         mov dx, es:[di]
+
+        inc bp
+        cmp bp, 13
+        jne @@after_enter
+        xor bp, bp
+        add di, 134d
+        @@after_enter:
 
         cmp ax, dx
         jne @@no_equ
         add di, 2
         add si, 2
         add bx, 2
-        inc dx
-        cmp dx, 13
-        jne @@after_enter
-        xor dx, dx 
-        add si, 134d
-        add di, 134d
-        @@after_enter:
+        ; add si, 134d
         loop @@cicle
         jmp @@end
 
@@ -417,6 +422,7 @@ copy_draw_buffer proc
         loop @@cicle
 
     @@end:
+    pop bp
     ret
 endp
 
@@ -428,7 +434,7 @@ endp
 make_save_buffer proc
     
     lea di, save_buffer 
-    xor si, si 
+    mov si, 720d
 
     mov ax, 0B800h
     mov ds, ax 
@@ -436,13 +442,23 @@ make_save_buffer proc
     mov ax, cs
     mov es, ax
 
-    mov cx, 351d
+    mov cx, 182d
+    xor bx, bx
 
     @@cicle:
         lodsw 
         stosw
+        inc bx 
+        cmp bx, 13d
+        je @@enter
         loop @@cicle
+        jmp @@end
+        @@enter:
+            xor bx, bx
+            add si, 134d
+            loop @@cicle
 
+    @@end:
     mov ax, cs
     mov ds, ax
     ret    
