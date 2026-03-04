@@ -17,6 +17,8 @@ Start:
     mov ax, 3509h
 	int 21h
 
+    ; int 1Ch
+
 	mov old09Ofs, bx
 	mov bx, es
 	mov old09seg, es
@@ -40,13 +42,14 @@ Start:
     mov ax, cs
     mov es:[bx + 2], ax
 
-    ; sub bx, 4
+    sub bx, 4
 
-    ; mov es:[bx], offset My_int_8
-    ; mov es:[bx + 2], ax
+    mov es:[bx], offset My_int_8
+    mov es:[bx + 2], ax
 
     sti
 
+    int 08h
     ; int 09h
     ; mov cx, 5
     ; @@11:
@@ -120,7 +123,7 @@ My_int_9 proc
     popf
     jne @@old_9
 
-    call copy_draw_buffer
+    ; call copy_draw_buffer
 
     mov ax, cs
     mov es, ax
@@ -186,20 +189,26 @@ My_int_9 proc
 endp
 
 My_int_8 proc
-    cli
-    push ax bx cx dx di es ds
+    ; cli
+    ; sti
+    push ax bx cx dx di si es ds bp
     pushf
 
     call copy_draw_buffer
+    ; mov bx, 1
+
+    ; push bp
 
     mov al, 20h
     out 20h, al
+    
     popf
-    pop ds es di dx cx bx ax 
+    pop bp ds es si di dx cx bx ax 
+
     db 0eah
     old08Ofs dw 0 
     old08seg dw 0
-    sti
+
     iret
 endp
 
